@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AK Updated Wingo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'El Messiri', sans-serif; text-align: center; }
+        body { background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTaUefxA6uYUk7SNTE-zautkRqmg6CK-4irbhgcysqWRJRbSK0tnS8hp_XV&s=10') no-repeat center center fixed; background-size: cover; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: white; }
+        .container { width: 150%; max-width: 400px; }
+        .box { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); border-radius: 13px; padding: 15px; margin-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+        .status-box { padding: 10px; border-radius: 10px; font-size: 16px; font-weight: bold; }
+        .green { background: rgba(0, 255, 0, 0.3); border: 1px solid green; }
+        .red { background: rgba(255, 0, 0, 0.3); border: 1px solid red; }
+        .blue { background: rgba(0, 0, 255, 0.3); border: 1px solid blue; }
+        .grey { background: rgba(128, 128, 128, 0.3); border: 1px solid grey; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 5px; border-bottom: 1px solid white; }
+        .win {
+            color: #00ff00;
+            font-weight: bold;
+            text-shadow: 
+                0 0 5px #00ff00,    /* Inner glow */
+                0 0 10px #00ff00,   /* Medium glow */
+                0 0 20px #00ff00;    /* Outer glow */
+        }
+        .loss { color: #ff0000; font-weight: bold; } /* Red for LOSS */
+        .pending { color: #0000ff; font-weight: bold; } /* Blue for Pending */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="box">
+            <h2>SURYA AK WINGO 1M</h2>
+        </div>
+        <div class="box">
+            <p><b>Period:</b> <span id="currentPeriod">Loading...</span></p>
+            <p><b>Prediction:</b> <span id="prediction">Loading...</span></p>
+        </div>
+        <div class="box">
+            <h2>Analysis</h2>
+            <div class="grid">
+                <div class="status-box green"><p>WIN Count</p><span id="totalWins">0</span></div>
+                <div class="status-box red"><p>Lost Count</p><span id="totalLosses">0</span></div>
+                <div class="status-box blue"><p>WIN %</p><span id="accuracy">0%</span></div>
+                <div class="status-box grey"><p>Auto-Reverse</p><span>Active</span></div>
+            </div>
+        </div>
+        <div class="box">
+            <h2>History</h2>
+            <table id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Period</th>
+                        <th>Prediction</th>
+                        <th>Result</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="historyList"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let historyData = [];
+        let lastFetchedPeriod = null;
+        const HISTORY_LENGTH = 10; // Number of previous results to analyze
+
+        async function fetchGameResult() {
+            try {
+                let response = await fetch("https://api.bdg88zf.com/api/webapi/GetNoaverageEmerdList", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        pageSize: 10,
+                        pageNo: 1,
+                        typeId: 1,
+                        language: 0,
+                        random: "4a0522c6ecd8410496260e686be2a57c",
+                        signature: "334B5E70A0C9B8918B0B15E517E2069C",
+                        timestamp: Math.floor(Date.now() / 1000)
+                    })
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+                let data = await response.json();
+                let latestResult = data?.data?.list?.[0];
+
+                return latestResult ? { period: latestResult.issueNumber, result: latestResult.number } : null;
+            } catch (error) {
+                console.error("Error fetching game result:", error);
+                return null;
+            }
+        }
+
+        function trendAnalysis(history) {
+            if (history.length < 2) return { type: "BIG", method: "Initial prediction (not enough data)" };
+            
+            // Get last 5 results for analysis
+            const recentResults = history.slice(0, 5);
+            
+            // Count BIG/SMALL occurrences
+            let bigCount = 0;
+            let smallCount = 0;
+            
+            recentResults.forEach(item => {
+                if (item.result >= 5) bigCount++;
+                else smallCount++;
+            });
+            
+            // Method 1: Follow the trend (if more BIGs, predict BIG, etc.)
+            if (bigCount > smallCount) {
+                return { 
+                    type: "BIG", 
+                    method: `Trend analysis (${bigCount}B/${smallCount}S in last 5)`
+                };
+            } else if (smallCount > bigCount) {
+                return { 
+                    type: "SMALL", 
+                    method: `Trend analysis (${bigCount}B/${smallCount}S in last 5)`
+                };
+            }
+            
+            // Method 2: If equal counts, look for patterns
+            const lastTwo = history.slice(0, 2);
+            if (lastTwo.length === 2) {
+                const first = lastTwo[0].result >= 5 ? "B" : "S";
+                const second = lastTwo[1].result >= 5 ? "B" : "S";
+                
+                // If last two were same, predict opposite
+                if (first === second) {
+                    return { 
+                        type: first === "B" ? "SMALL" : "BIG", 
+                        method: "Pattern detection (last 2 same)"
+                    };
+                }
+            }
+            
+            // Method 3: Default to opposite of last result
+            const lastResult = history[0].result >= 5 ? "BIG" : "SMALL";
+            return { 
+                type: lastResult === "BIG" ? "SMALL" : "BIG", 
+                method: "Opposite of last result"
+            };
+        }
+
+        async function updatePrediction() {
+            let apiResult = await fetchGameResult();
+
+            if (apiResult && apiResult.period !== lastFetchedPeriod) {
+                lastFetchedPeriod = apiResult.period;
+                let currentPeriod = (BigInt(apiResult.period) + 1n).toString();
+                let prediction = historyData.length > 0 ? trendAnalysis(historyData) : { type: "BIG", method: "Initial prediction" };
+
+                document.getElementById("currentPeriod").innerText = currentPeriod;
+                document.getElementById("prediction").innerText = prediction.type;
+
+                // Store the actual result (BIG/SMALL) for the previous period
+                if (historyData.length > 0 && historyData[0].resultStatus === "Pending") {
+                    const actualResult = apiResult.result >= 5 ? "BIG" : "SMALL";
+                    historyData[0].actual = actualResult;
+                    historyData[0].resultStatus = (historyData[0].prediction === actualResult) ? "WIN" : "LOSS";
+                }
+
+                // Add new prediction for current period
+                historyData.unshift({ 
+                    period: currentPeriod, 
+                    prediction: prediction.type, 
+                    result: null, 
+                    resultStatus: "Pending",
+                    actual: null
+                });
+
+                // Keep only limited history
+                if (historyData.length > HISTORY_LENGTH) {
+                    historyData = historyData.slice(0, HISTORY_LENGTH);
+                }
+
+                updateStats();
+                updateHistory();
+            }
+        }
+
+        function updateStats() {
+            let totalWins = historyData.filter(item => item.resultStatus === "WIN").length;
+            let totalLosses = historyData.filter(item => item.resultStatus === "LOSS").length;
+            let totalPredictions = totalWins + totalLosses;
+            let accuracy = totalPredictions ? ((totalWins / totalPredictions) * 100).toFixed(2) + "%" : "0%";
+
+            document.getElementById("totalWins").innerText = totalWins;
+            document.getElementById("totalLosses").innerText = totalLosses;
+            document.getElementById("accuracy").innerText = accuracy;
+        }
+
+        function updateHistory() {
+            let historyTable = document.getElementById("historyList");
+            historyTable.innerHTML = "";
+
+            historyData.forEach(item => {
+                let row = document.createElement("tr");
+                let resultDisplay = item.actual ? (item.actual === "BIG" ? "B" : "S") : "-";
+                row.innerHTML = `
+                    <td>${item.period}</td>
+                    <td>${item.prediction}</td>
+                    <td>${resultDisplay}</td>
+                    <td class="${item.resultStatus.toLowerCase()}">${item.resultStatus}</td>
+                `;
+                historyTable.appendChild(row);
+            });
+        }
+
+        // Initial update
+        updatePrediction();
+        // Update every 3 seconds
+        setInterval(updatePrediction, 3000);
+    </script>
+</body>
+</html>
