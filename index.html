@@ -66,158 +66,114 @@
     </div>
 
     <script>
-        let historyData = [];
-        let lastFetchedPeriod = null;
-        const HISTORY_LENGTH = 10; // Number of previous results to analyze
+    let historyData = [];
+    let lastFetchedPeriod = null;
+    const HISTORY_LENGTH = 10; // Number of previous results to analyze
 
-        async function fetchGameResult() {
-            try {
-                let response = await fetch("https://api.bdg88zf.com/api/webapi/GetNoaverageEmerdList", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        pageSize: 10,
-                        pageNo: 1,
-                        typeId: 1,
-                        language: 0,
-                        random: "4a0522c6ecd8410496260e686be2a57c",
-                        signature: "334B5E70A0C9B8918B0B15E517E2069C",
-                        timestamp: Math.floor(Date.now() / 1000)
-                    })
-                });
-
-                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
-                let data = await response.json();
-                let latestResult = data?.data?.list?.[0];
-
-                return latestResult ? { period: latestResult.issueNumber, result: latestResult.number } : null;
-            } catch (error) {
-                console.error("Error fetching game result:", error);
-                return null;
-            }
-        }
-
-        function trendAnalysis(history) {
-            if (history.length < 2) return { type: "BIG", method: "Initial prediction (not enough data)" };
-            
-            // Get last 5 results for analysis
-            const recentResults = history.slice(0, 5);
-            
-            // Count BIG/SMALL occurrences
-            let bigCount = 0;
-            let smallCount = 0;
-            
-            recentResults.forEach(item => {
-                if (item.result >= 5) bigCount++;
-                else smallCount++;
+    async function fetchGameResult() {
+        try {
+            let response = await fetch("https://api.bdg88zf.com/api/webapi/GetNoaverageEmerdList", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    pageSize: 10,
+                    pageNo: 1,
+                    typeId: 1,
+                    language: 0,
+                    random: "4a0522c6ecd8410496260e686be2a57c",
+                    signature: "334B5E70A0C9B8918B0B15E517E2069C",
+                    timestamp: Math.floor(Date.now() / 1000)
+                })
             });
-            
-            // Method 1: Follow the trend (if more BIGs, predict BIG, etc.)
-            if (bigCount > smallCount) {
-                return { 
-                    type: "BIG", 
-                    method: `Trend analysis (${bigCount}B/${smallCount}S in last 5)`
-                };
-            } else if (smallCount > bigCount) {
-                return { 
-                    type: "SMALL", 
-                    method: `Trend analysis (${bigCount}B/${smallCount}S in last 5)`
-                };
-            }
-            
-            // Method 2: If equal counts, look for patterns
-            const lastTwo = history.slice(0, 2);
-            if (lastTwo.length === 2) {
-                const first = lastTwo[0].result >= 5 ? "B" : "S";
-                const second = lastTwo[1].result >= 5 ? "B" : "S";
-                
-                // If last two were same, predict opposite
-                if (first === second) {
-                    return { 
-                        type: first === "B" ? "SMALL" : "BIG", 
-                        method: "Pattern detection (last 2 same)"
-                    };
-                }
-            }
-            
-            // Method 3: Default to opposite of last result
-            const lastResult = history[0].result >= 5 ? "BIG" : "SMALL";
-            return { 
-                type: lastResult === "BIG" ? "SMALL" : "BIG", 
-                method: "Opposite of last result"
-            };
+
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+            let data = await response.json();
+            let latestResult = data?.data?.list?.[0];
+
+            return latestResult ? { period: latestResult.issueNumber, result: latestResult.number } : null;
+        } catch (error) {
+            console.error("Error fetching game result:", error);
+            return null;
         }
+    }
 
-        async function updatePrediction() {
-            let apiResult = await fetchGameResult();
+    function randomPrediction() {
+        // Simple random prediction (50/50 chance)
+        return Math.random() > 0.5 
+            ? { type: "BIG", method: "Random prediction" } 
+            : { type: "SMALL", method: "Random prediction" };
+    }
 
-            if (apiResult && apiResult.period !== lastFetchedPeriod) {
-                lastFetchedPeriod = apiResult.period;
-                let currentPeriod = (BigInt(apiResult.period) + 1n).toString();
-                let prediction = historyData.length > 0 ? trendAnalysis(historyData) : { type: "BIG", method: "Initial prediction" };
+    async function updatePrediction() {
+        let apiResult = await fetchGameResult();
 
-                document.getElementById("currentPeriod").innerText = currentPeriod;
-                document.getElementById("prediction").innerText = prediction.type;
+        if (apiResult && apiResult.period !== lastFetchedPeriod) {
+            lastFetchedPeriod = apiResult.period;
+            let currentPeriod = (BigInt(apiResult.period) + 1n).toString();
+            let prediction = historyData.length > 0 ? randomPrediction() : { type: "BIG", method: "Initial prediction" };
 
-                // Store the actual result (BIG/SMALL) for the previous period
-                if (historyData.length > 0 && historyData[0].resultStatus === "Pending") {
-                    const actualResult = apiResult.result >= 5 ? "BIG" : "SMALL";
-                    historyData[0].actual = actualResult;
-                    historyData[0].resultStatus = (historyData[0].prediction === actualResult) ? "WIN" : "LOSS";
-                }
+            document.getElementById("currentPeriod").innerText = currentPeriod;
+            document.getElementById("prediction").innerText = prediction.type;
 
-                // Add new prediction for current period
-                historyData.unshift({ 
-                    period: currentPeriod, 
-                    prediction: prediction.type, 
-                    result: null, 
-                    resultStatus: "Pending",
-                    actual: null
-                });
-
-                // Keep only limited history
-                if (historyData.length > HISTORY_LENGTH) {
-                    historyData = historyData.slice(0, HISTORY_LENGTH);
-                }
-
-                updateStats();
-                updateHistory();
+            // Store the actual result (BIG/SMALL) for the previous period
+            if (historyData.length > 0 && historyData[0].resultStatus === "Pending") {
+                const actualResult = apiResult.result >= 5 ? "BIG" : "SMALL";
+                historyData[0].actual = actualResult;
+                historyData[0].resultStatus = (historyData[0].prediction === actualResult) ? "WIN" : "LOSS";
             }
-        }
 
-        function updateStats() {
-            let totalWins = historyData.filter(item => item.resultStatus === "WIN").length;
-            let totalLosses = historyData.filter(item => item.resultStatus === "LOSS").length;
-            let totalPredictions = totalWins + totalLosses;
-            let accuracy = totalPredictions ? ((totalWins / totalPredictions) * 100).toFixed(2) + "%" : "0%";
-
-            document.getElementById("totalWins").innerText = totalWins;
-            document.getElementById("totalLosses").innerText = totalLosses;
-            document.getElementById("accuracy").innerText = accuracy;
-        }
-
-        function updateHistory() {
-            let historyTable = document.getElementById("historyList");
-            historyTable.innerHTML = "";
-
-            historyData.forEach(item => {
-                let row = document.createElement("tr");
-                let resultDisplay = item.actual ? (item.actual === "BIG" ? "B" : "S") : "-";
-                row.innerHTML = `
-                    <td>${item.period}</td>
-                    <td>${item.prediction}</td>
-                    <td>${resultDisplay}</td>
-                    <td class="${item.resultStatus.toLowerCase()}">${item.resultStatus}</td>
-                `;
-                historyTable.appendChild(row);
+            // Add new prediction for current period
+            historyData.unshift({ 
+                period: currentPeriod, 
+                prediction: prediction.type, 
+                result: null, 
+                resultStatus: "Pending",
+                actual: null
             });
-        }
 
-        // Initial update
-        updatePrediction();
-        // Update every 3 seconds
-        setInterval(updatePrediction, 3000);
-    </script>
+            // Keep only limited history
+            if (historyData.length > HISTORY_LENGTH) {
+                historyData = historyData.slice(0, HISTORY_LENGTH);
+            }
+
+            updateStats();
+            updateHistory();
+        }
+    }
+
+    function updateStats() {
+        let totalWins = historyData.filter(item => item.resultStatus === "WIN").length;
+        let totalLosses = historyData.filter(item => item.resultStatus === "LOSS").length;
+        let totalPredictions = totalWins + totalLosses;
+        let accuracy = totalPredictions ? ((totalWins / totalPredictions) * 100).toFixed(2) + "%" : "0%";
+
+        document.getElementById("totalWins").innerText = totalWins;
+        document.getElementById("totalLosses").innerText = totalLosses;
+        document.getElementById("accuracy").innerText = accuracy;
+    }
+
+    function updateHistory() {
+        let historyTable = document.getElementById("historyList");
+        historyTable.innerHTML = "";
+
+        historyData.forEach(item => {
+            let row = document.createElement("tr");
+            let resultDisplay = item.actual ? (item.actual === "BIG" ? "B" : "S") : "-";
+            row.innerHTML = `
+                <td>${item.period}</td>
+                <td>${item.prediction}</td>
+                <td>${resultDisplay}</td>
+                <td class="${item.resultStatus.toLowerCase()}">${item.resultStatus}</td>
+            `;
+            historyTable.appendChild(row);
+        });
+    }
+
+    // Initial update
+    updatePrediction();
+    // Update every 3 seconds
+    setInterval(updatePrediction, 3000);
+</script>
 </body>
 </html>
