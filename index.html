@@ -7,50 +7,207 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'El Messiri', sans-serif; text-align: center; }
-        body { background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgmqZGh4M1jDost5bvUtpgZkI91gHMWowKXhR4awaqoEWsg2NZoOYlSGXs&s=10') no-repeat center center fixed; background-size: cover; display: flex; justify-content: center; align-items: center; min-height: 100vh; color: white; }
-        .container { width: 150%; max-width: 400px; }
-        .box { background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(10px); border-radius: 13px; padding: 15px; margin-bottom: 15px; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        .status-box { padding: 10px; border-radius: 10px; font-size: 16px; font-weight: bold; }
-        .green { background: rgba(0, 255, 0, 0.3); border: 1px solid green; }
-        .red { background: rgba(255, 0, 0, 0.3); border: 1px solid red; }
-        .blue { background: rgba(0, 0, 255, 0.3); border: 1px solid blue; }
-        .grey { background: rgba(128, 128, 128, 0.3); border: 1px solid grey; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 5px; border-bottom: 1px solid white; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'El Messiri', sans-serif; 
+            text-align: center; 
+        }
+        
+        body { 
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTgmqZGh4M1jDost5bvUtpgZkI91gHMWowKXhR4awaqoEWsg2NZoOYlSGXs&s=10') no-repeat center center fixed; 
+            background-size: cover; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            color: white; 
+        }
+        
+        .container {
+            width: 98%; 
+            max-width: 420px; 
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .box { 
+            background: rgba(0, 0, 0, 0.7); 
+            backdrop-filter: blur(12px); 
+            border-radius: 15px; 
+            padding: 20px; 
+            margin-bottom: 1px; 
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .box:hover {
+            transform: translateY(-5px);
+        }
+        
+        h2 {
+            color: #FFD700;
+            margin-bottom: 10px;
+            font-size: 22px;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            margin-top: 15px; 
+        }
+        
+        .status-box { 
+            padding: 12px; 
+            border-radius: 13px; 
+            font-size: 10px; 
+            font-weight: bold; 
+            transition: all 0.3s ease;
+        }
+        
+        .status-box:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        
+        .green { 
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.2), rgba(0, 150, 0, 0.3)); 
+            border: 1px solid rgba(0, 255, 0, 0.5); 
+        }
+        
+        .red { 
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.2), rgba(150, 0, 0, 0.3)); 
+            border: 1px solid rgba(255, 0, 0, 0.5); 
+        }
+        
+        .blue { 
+            background: linear-gradient(135deg, rgba(0, 0, 255, 0.2), rgba(0, 0, 150, 0.3)); 
+            border: 1px solid rgba(0, 0, 255, 0.5); 
+        }
+        
+        .grey { 
+            background: linear-gradient(135deg, rgba(128, 128, 128, 0.2), rgba(80, 80, 80, 0.3)); 
+            border: 1px solid rgba(128, 128, 128, 0.5); 
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+        
+        th, td { 
+            padding: 8px 5px; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2); 
+        }
+        
+        th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 700;
+        }
+        
+        tr {
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        tr:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        
         .win {
             color: #00ff00;
             font-weight: bold;
-            text-shadow: 
-                0 0 5px #00ff00,    /* Inner glow */
-                0 0 10px #00ff00,   /* Medium glow */
-                0 0 20px #00ff00;    /* Outer glow */
+            text-shadow: 0 0 5px #00ff00;
+            animation: pulse 1.5s infinite;
         }
-        .loss { color: #ff0000; font-weight: bold; } /* Red for LOSS */
-        .pending { color: #0000ff; font-weight: bold; } /* Blue for Pending */
+        
+        .loss { 
+            color: #ff0000; 
+            font-weight: bold; 
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+        }
+        
+        .pending { 
+            color: #00BFFF; 
+            font-weight: bold; 
+            text-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
+        }
+        
+        #currentPeriod {
+            font-weight: bold;
+            color: #FFD700;
+        }
+        
+        #prediction {
+            font-weight: bold;
+            font-size: 20px;
+            color: #4ECDC4;
+            text-shadow: 0 0 5px rgba(78, 205, 196, 0.5);
+        }
+        
+        .timer {
+            margin-top: 10px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+        
+        .status-icon {
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="box">
-            <h2>SURYA AK WINGO 1M</h2>
+            <h2><i class="fas fa-crown status-icon"></i>SURYA AK WINGO 1M</h2>
+            <div class="timer">Last updated: <span id="updateTime">Just now</span></div>
         </div>
+        
         <div class="box">
             <p><b>Period:</b> <span id="currentPeriod">Loading...</span></p>
             <p><b>Prediction:</b> <span id="prediction">Loading...</span></p>
         </div>
+        
         <div class="box">
-            <h2>Analysis</h2>
+            <h2><i class="fas fa-chart-pie status-icon"></i>Analysis</h2>
             <div class="grid">
-                <div class="status-box green"><p>WIN Count</p><span id="totalWins">0</span></div>
-                <div class="status-box red"><p>Lost Count</p><span id="totalLosses">0</span></div>
-                <div class="status-box blue"><p>WIN %</p><span id="accuracy">0%</span></div>
-                <div class="status-box grey"><p>Auto-Reverse</p><span>Active</span></div>
+                <div class="status-box green">
+                    <p><i class="fas fa-trophy"></i> WIN Count</p>
+                    <span id="totalWins">0</span>
+                </div>
+                <div class="status-box red">
+                    <p><i class="fas fa-times-circle"></i> Lost Count</p>
+                    <span id="totalLosses">0</span>
+                </div>
+                <div class="status-box blue">
+                    <p><i class="fas fa-percentage"></i> WIN %</p>
+                    <span id="accuracy">0%</span>
+                </div>
+                <div class="status-box grey">
+                    <p><i class="fas fa-sync-alt"></i> Auto-Reverse</p>
+                    <span>Active</span>
+                </div>
             </div>
         </div>
+        
         <div class="box">
-            <h2>History</h2>
+            <h2><i class="fas fa-history status-icon"></i>History</h2>
             <table id="historyTable">
                 <thead>
                     <tr>
@@ -65,7 +222,7 @@
         </div>
     </div>
 
-    <script>
+<script>
     let historyData = [];
     let lastFetchedPeriod = null;
     const HISTORY_LENGTH = 10; // Number of previous results to analyze
