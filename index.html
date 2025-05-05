@@ -256,10 +256,13 @@
     }
 
     function randomPrediction() {
-        // Simple random prediction (50/50 chance)
-        return Math.random() > 0.5 
-            ? { type: "BIG", method: "Random prediction" } 
-            : { type: "SMALL", method: "Random prediction" };
+        // Predict either SMALL or BIG randomly
+        const options = ["SMALL", "BIG"];
+        const randomIndex = Math.floor(Math.random() * options.length);
+        return {
+            type: options[randomIndex],
+            method: "Random prediction"
+        };
     }
 
     async function updatePrediction() {
