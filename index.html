@@ -170,6 +170,13 @@
         .status-icon {
             margin-right: 5px;
         }
+        
+        .algorithm-info {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 10px;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -182,6 +189,9 @@
         <div class="box">
             <p><b>Period:</b> <span id="currentPeriod">Loading...</span></p>
             <p><b>Prediction:</b> <span id="prediction">Loading...</span></p>
+            <div class="algorithm-info" id="algorithmInfo">
+                Algorithm analyzing 5-digit period patterns...
+            </div>
         </div>
         
         <div class="box">
@@ -226,6 +236,7 @@
     let historyData = JSON.parse(localStorage.getItem('wingoHistory')) || [];
     let lastFetchedPeriod = null;
     const HISTORY_LENGTH = 10;
+    let patternAnalysis = [];
 
     // Update timestamp
     function updateTimestamp() {
@@ -293,22 +304,73 @@
         }
     }
 
-    // Calculate prediction based on last 4 digits of period
+    // Enhanced prediction algorithm based on last 5 digits
     function calculatePrediction(period) {
         const periodStr = period.toString();
-        const last4Digits = periodStr.slice(-4);
+        // Take last 5 digits of the period
+        const last5Digits = periodStr.slice(-5).padStart(5, '0');
+        const digits = last5Digits.split('').map(Number);
         
-        // Convert to number and check if even or odd
-        const num = parseInt(last4Digits);
-        const isEven = num % 2 === 0;
+        // 1. Analyze digit patterns
+        const digitSum = digits.reduce((a, b) => a + b, 0);
+        const evenDigits = digits.filter(d => d % 2 === 0).length;
+        const oddDigits = digits.filter(d => d % 2 !== 0).length;
         
-        // Simple algorithm - you can modify this as needed
-        if (num % 3 === 0 || num % 7 === 0) {
+        // 2. Position-based analysis
+        const firstLastDiff = Math.abs(digits[0] - digits[4]);
+        const middleDigit = digits[2];
+        
+        // 3. Last digits analysis
+        const lastDigit = digits[4];
+        const lastTwoDigits = parseInt(last5Digits.slice(-2));
+        
+        // 4. Pattern detection
+        const isAscending = digits.every((val, i, arr) => i === 0 || val >= arr[i - 1]);
+        const isDescending = digits.every((val, i, arr) => i === 0 || val <= arr[i - 1]);
+        
+        // Store pattern analysis for display
+        patternAnalysis = [
+            `Digit Sum: ${digitSum}`,
+            `Even/Odd: ${evenDigits}/${oddDigits}`,
+            `First-Last Diff: ${firstLastDiff}`,
+            `Middle Digit: ${middleDigit}`,
+            `Last Digit: ${lastDigit}`
+        ];
+        
+        // Balanced decision matrix
+        let bigScore = 0;
+        let smallScore = 0;
+        
+        // Scoring rules (adjusted for better balance)
+        if (digitSum > 22) bigScore += 1;
+        if (digitSum <= 18) smallScore += 1;
+        
+        if (evenDigits >= 3) bigScore += 1;
+        if (oddDigits >= 3) smallScore += 1;
+        
+        if (firstLastDiff > 4) bigScore += 1;
+        if (firstLastDiff <= 2) smallScore += 1;
+        
+        if (middleDigit > 5) bigScore += 1;
+        if (middleDigit < 4) smallScore += 1;
+        
+        if (lastDigit >= 6) bigScore += 1;
+        if (lastDigit <= 3) smallScore += 1;
+        
+        if (lastTwoDigits % 4 === 0) bigScore += 1;
+        if (lastTwoDigits % 5 === 0) smallScore += 1;
+        
+        if (isAscending) bigScore += 1;
+        if (isDescending) smallScore += 1;
+        
+        // Final decision with balanced threshold
+        if (bigScore > smallScore) {
             return 'BIG';
-        } else if (num % 5 === 0 || num % 9 === 0) {
+        } else if (smallScore > bigScore) {
             return 'SMALL';
         } else {
-            return isEven ? 'BIG' : 'SMALL';
+            // If scores are equal, use last digit as tiebreaker
+            return lastDigit >= 5 ? 'BIG' : 'SMALL';
         }
     }
 
@@ -346,9 +408,10 @@
                 }
             }
             
-            // Calculate new prediction
+            // Calculate new prediction with enhanced algorithm
             const prediction = calculatePrediction(currentPeriod);
             document.getElementById("prediction").textContent = prediction;
+            document.getElementById("algorithmInfo").innerHTML = patternAnalysis.join(' &bull; ');
             
             // Add to history
             historyData.unshift({
@@ -403,7 +466,7 @@
     // Initialize
     updatePrediction();
     // Update every 5 seconds
-    setInterval(updatePrediction, 1000);
+    setInterval(updatePrediction, 5000);
 </script>
 </body>
 </html>
