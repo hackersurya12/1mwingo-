@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -177,6 +178,51 @@
             margin-top: 10px;
             text-align: left;
         }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .action-btn i {
+            font-size: 14px;
+        }
+        
+        #copyBtn {
+            background: rgba(78, 205, 196, 0.2);
+            border-color: rgba(78, 205, 196, 0.5);
+        }
+        
+        #downloadBtn {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.5);
+        }
+        
+        #deleteBtn {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: rgba(255, 0, 0, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -189,8 +235,13 @@
         <div class="box">
             <p><b>Period:</b> <span id="currentPeriod">Loading...</span></p>
             <p><b>Prediction:</b> <span id="prediction">Loading...</span></p>
+            <div class="action-buttons">
+                <button id="copyBtn" class="action-btn" onclick="copyPrediction()">
+                    <i class="fas fa-copy"></i> Copy Prediction
+                </button>
+            </div>
             <div class="algorithm-info" id="algorithmInfo">
-                Algorithm analyzing 5-digit period patterns...
+                
             </div>
         </div>
         
@@ -229,13 +280,21 @@
                 </thead>
                 <tbody id="historyList"></tbody>
             </table>
+            <div class="action-buttons">
+                <button id="downloadBtn" class="action-btn" onclick="downloadHistory()">
+                    <i class="fas fa-download"></i> Download
+                </button>
+                <button id="deleteBtn" class="action-btn" onclick="clearHistory()">
+                    <i class="fas fa-trash"></i> Clear History
+                </button>
+            </div>
         </div>
     </div>
 
 <script>
     let historyData = JSON.parse(localStorage.getItem('wingoHistory')) || [];
     let lastFetchedPeriod = null;
-    const HISTORY_LENGTH = 10;
+    const HISTORY_LENGTH = 30;
     let patternAnalysis = [];
 
     // Update timestamp
@@ -304,79 +363,141 @@
         }
     }
 
-    // Enhanced prediction algorithm based on last 5 digits
+    // New prediction algorithm based on last 2 digits of period
     function calculatePrediction(period) {
         const periodStr = period.toString();
-        // Take last 5 digits of the period
-        const last5Digits = periodStr.slice(-5).padStart(5, '0');
-        const digits = last5Digits.split('').map(Number);
+        // Take last 2 digits of the period
+        const last2Digits = periodStr.slice(-2).padStart(2, '0');
+        const num = parseInt(last2Digits);
         
-        // 1. Analyze digit patterns
-        const digitSum = digits.reduce((a, b) => a + b, 0);
-        const evenDigits = digits.filter(d => d % 2 === 0).length;
-        const oddDigits = digits.filter(d => d % 2 !== 0).length;
+        // Reset pattern analysis
+        patternAnalysis = [];
         
-        // 2. Position-based analysis
-        const firstLastDiff = Math.abs(digits[0] - digits[4]);
-        const middleDigit = digits[2];
+        // 1. Check if number is prime
+        function isPrime(n) {
+            if (n <= 1) return false;
+            if (n <= 3) return true;
+            if (n % 2 === 0 || n % 3 === 0) return false;
+            for (let i = 5; i * i <= n; i += 6) {
+                if (n % i === 0 || n % (i + 2) === 0) return false;
+            }
+            return true;
+        }
         
-        // 3. Last digits analysis
-        const lastDigit = digits[4];
-        const lastTwoDigits = parseInt(last5Digits.slice(-2));
+        const prime = isPrime(num);
+       // patternAnalysis.push(`Prime: ${prime ? 'Yes' : 'No'}`);
         
-        // 4. Pattern detection
-        const isAscending = digits.every((val, i, arr) => i === 0 || val >= arr[i - 1]);
-        const isDescending = digits.every((val, i, arr) => i === 0 || val <= arr[i - 1]);
+        // 2. Check if number is even or odd
+        const even = num % 2 === 0;
+        //patternAnalysis.push(`Even: ${even ? 'Yes' : 'No'}`);
         
-        // Store pattern analysis for display
-        patternAnalysis = [
-            //`Digit Sum: ${digitSum}`,
-            //`Even/Odd: ${evenDigits}/${oddDigits}`,
-            //`First-Last Diff: ${firstLastDiff}`,
-            //`Middle Digit: ${middleDigit}`,
-            //`Last Digit: ${lastDigit}`
-        ];
+        // 3. Sum of digits
+        const digitSum = last2Digits.split('').reduce((a, b) => a + parseInt(b), 0);
+        //patternAnalysis.push(`Digit Sum: ${digitSum}`);
         
-        // Balanced decision matrix
+        // 4. Check if divisible by 3, 5, or 7
+        const div3 = num % 3 === 0;
+        const div5 = num % 5 === 0;
+        const div7 = num % 7 === 0;
+        //patternAnalysis.push(`Divisible by 3/5/7: ${div3 ? '3' : ''}${div5 ? '5' : ''}${div7 ? '7' : ''}`);
+        
+        // 5. Check if digits are ascending or descending
+        const digits = last2Digits.split('').map(Number);
+        const ascending = digits[0] < digits[1];
+        const descending = digits[0] > digits[1];
+       // patternAnalysis.push(`Digits Trend: ${ascending ? '↑' : descending ? '↓' : '='}`);
+        
+        // Decision matrix
         let bigScore = 0;
         let smallScore = 0;
         
-        // Scoring rules (adjusted for better balance)
-        if (digitSum > 22) bigScore += 1;
-        if (digitSum <= 18) smallScore += 1;
+        // Scoring rules based on analysis
+        if (prime) bigScore += 2;
+        if (!prime) smallScore += 1;
         
-        if (evenDigits >= 3) bigScore += 1;
-        if (oddDigits >= 3) smallScore += 1;
+        if (even) bigScore += 1;
+        if (!even) smallScore += 1;
         
-        if (firstLastDiff > 4) bigScore += 1;
-        if (firstLastDiff <= 2) smallScore += 1;
+        if (digitSum > 5) bigScore += 1;
+        if (digitSum <= 5) smallScore += 1;
         
-        if (middleDigit > 5) bigScore += 1;
-        if (middleDigit < 4) smallScore += 1;
+        if (div3 || div5 || div7) bigScore += 1;
+        if (!div3 && !div5 && !div7) smallScore += 1;
         
-        if (lastDigit >= 6) bigScore += 1;
-        if (lastDigit <= 3) smallScore += 1;
+        if (ascending) bigScore += 1;
+        if (descending) smallScore += 1;
         
-        if (lastTwoDigits % 4 === 0) bigScore += 1;
-        if (lastTwoDigits % 5 === 0) smallScore += 1;
-        
-        if (isAscending) bigScore += 1;
-        if (isDescending) smallScore += 1;
+        // Special cases for certain number ranges
+        if (num >= 50 && num < 75) bigScore += 1;
+        if (num >= 25 && num < 50) smallScore += 1;
         
         // Final decision with balanced threshold
-        if (bigScore > smallScore) {
+        if (bigScore > smallScore + 1) {
             return 'BIG';
-        } else if (smallScore > bigScore) {
+        } else if (smallScore > bigScore + 1) {
             return 'SMALL';
         } else {
-            // If scores are equal, use last digit as tiebreaker
-            return lastDigit >= 5 ? 'BIG' : 'SMALL';
+            // If scores are close, use digit sum as tiebreaker
+            return digitSum >= 5 ? 'BIG' : 'SMALL';
         }
     }
 
     // Determine if number is BIG or SMALL
     function getResultType(number) {
         return number >= 5 ? 'BIG' : 'SMALL';
+    }
+
+    // Copy prediction to clipboard
+    function copyPrediction() {
+        const prediction = document.getElementById("prediction").textContent;
+        const period = document.getElementById("currentPeriod").textContent;
+        const textToCopy = `Wingo Prediction for Period ${period}: ${prediction}`;
+        
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const btn = document.getElementById("copyBtn");
+            btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-copy"></i> Copy Prediction';
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    // Download history as CSV
+    function downloadHistory() {
+        if (historyData.length === 0) {
+            alert("No history data to download");
+            return;
+        }
+        
+        // Convert history to CSV
+        let csv = "Period,Prediction,Result,Status\n";
+        historyData.forEach(item => {
+            const result = item.result ? item.result.charAt(0) : '-';
+            csv += `${item.period},${item.prediction},${result},${item.status}\n`;
+        });
+        
+        // Create download link
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('hidden', '');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `wingo_history_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Clear history
+    function clearHistory() {
+        if (confirm("Are you sure you want to clear all history data?")) {
+            historyData = [];
+            localStorage.setItem('wingoHistory', JSON.stringify(historyData));
+            updateHistory();
+            updateStats();
+        }
     }
 
     // Update the prediction display
@@ -469,4 +590,4 @@
     setInterval(updatePrediction, 1000);
 </script>
 </body>
-</html>
+</html>)
