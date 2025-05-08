@@ -291,10 +291,45 @@
     </div>
 
 <script>
-    let historyData = JSON.parse(localStorage.getItem('wingoHistory')) || [];
-    let lastFetchedPeriod = null;
+    // Enhanced history storage with versioning
+    const HISTORY_STORAGE_KEY = 'wingoHistory_v2';
     const HISTORY_LENGTH = 30;
+    let historyData = [];
+    let lastFetchedPeriod = null;
     let patternAnalysis = [];
+
+    // Initialize history from storage
+    function loadHistory() {
+        const storedData = localStorage.getItem(HISTORY_STORAGE_KEY);
+        if (storedData) {
+            try {
+                historyData = JSON.parse(storedData);
+                // Migrate from old storage if needed
+                if (historyData.length > 0 && !historyData[0].timestamp) {
+                    historyData = historyData.map(item => ({
+                        ...item,
+                        timestamp: Date.now()
+                    }));
+                    saveHistory();
+                }
+            } catch (e) {
+                console.error("Error parsing history data", e);
+                historyData = [];
+            }
+        }
+    }
+
+    // Save history to storage
+    function saveHistory() {
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(historyData));
+    }
+
+    // Format period to show only last 4 digits
+    function formatPeriod(period) {
+        if (!period) return '';
+        const str = period.toString();
+        return str.length > 4 ? str.slice(-4) : str.padStart(4, '0');
+    }
 
     // Update timestamp
     function updateTimestamp() {
@@ -362,14 +397,12 @@
         }
     }
 
-    // New prediction algorithm based on last 2 digits of period
+    // Enhanced prediction algorithm
     function calculatePrediction(period) {
         const periodStr = period.toString();
-        // Take last 2 digits of the period
         const last2Digits = periodStr.slice(-2).padStart(2, '0');
         const num = parseInt(last2Digits);
         
-        // Reset pattern analysis
         patternAnalysis = [];
         
         // 1. Check if number is prime
@@ -384,27 +417,22 @@
         }
         
         const prime = isPrime(num);
-       // patternAnalysis.push(`Prime: ${prime ? 'Yes' : 'No'}`);
         
         // 2. Check if number is even or odd
         const even = num % 2 === 0;
-        //patternAnalysis.push(`Even: ${even ? 'Yes' : 'No'}`);
         
         // 3. Sum of digits
         const digitSum = last2Digits.split('').reduce((a, b) => a + parseInt(b), 0);
-        //patternAnalysis.push(`Digit Sum: ${digitSum}`);
         
         // 4. Check if divisible by 3, 5, or 7
         const div3 = num % 3 === 0;
         const div5 = num % 5 === 0;
         const div7 = num % 7 === 0;
-        //patternAnalysis.push(`Divisible by 3/5/7: ${div3 ? '3' : ''}${div5 ? '5' : ''}${div7 ? '7' : ''}`);
         
         // 5. Check if digits are ascending or descending
         const digits = last2Digits.split('').map(Number);
         const ascending = digits[0] < digits[1];
         const descending = digits[0] > digits[1];
-       // patternAnalysis.push(`Digits Trend: ${ascending ? '↑' : descending ? '↓' : '='}`);
         
         // Decision matrix
         let bigScore = 0;
@@ -432,11 +460,18 @@
         
         // Final decision with balanced threshold
         if (bigScore > smallScore + 1) {
+            patternAnalysis.push(`Prime: ${prime ? 'Yes' : 'No'}`);
+            patternAnalysis.push(`Even: ${even ? 'Yes' : 'No'}`);
+            //patternAnalysis.push(`Digit Sum: ${digitSum}`);
             return 'BIG';
         } else if (smallScore > bigScore + 1) {
+            patternAnalysis.push(`Prime: ${prime ? 'Yes' : 'No'}`);
+            patternAnalysis.push(`Even: ${even ? 'Yes' : 'No'}`);
+           // patternAnalysis.push(`Digit Sum: ${digitSum}`);
             return 'SMALL';
         } else {
             // If scores are close, use digit sum as tiebreaker
+           // patternAnalysis.push(`Tiebreaker: Digit Sum ${digitSum >= 5 ? '≥5' : '<5'}`);
             return digitSum >= 5 ? 'BIG' : 'SMALL';
         }
     }
@@ -471,10 +506,11 @@
         }
         
         // Convert history to CSV
-        let csv = "Period,Prediction,Result,Status\n";
+        let csv = "Period,Prediction,Result,Status,Timestamp\n";
         historyData.forEach(item => {
             const result = item.result ? item.result.charAt(0) : '-';
-            csv += `${item.period},${item.prediction},${result},${item.status}\n`;
+            const date = new Date(item.timestamp).toLocaleString();
+            csv += `${item.period},${item.prediction},${result},${item.status},${date}\n`;
         });
         
         // Create download link
@@ -493,7 +529,7 @@
     function clearHistory() {
         if (confirm("Are you sure you want to clear all history data?")) {
             historyData = [];
-            localStorage.setItem('wingoHistory', JSON.stringify(historyData));
+            saveHistory();
             updateHistory();
             updateStats();
         }
@@ -524,6 +560,7 @@
                         const resultType = getResultType(prevResult.result);
                         historyData[0].result = resultType;
                         historyData[0].status = historyData[0].prediction === resultType ? 'WIN' : 'LOSS';
+                        historyData[0].timestamp = Date.now();
                     }
                 }
             }
@@ -538,7 +575,8 @@
                 period: currentPeriod,
                 prediction: prediction,
                 result: null,
-                status: 'PENDING'
+                status: 'PENDING',
+                timestamp: Date.now()
             });
             
             // Keep history limited
@@ -547,7 +585,7 @@
             }
             
             // Save to local storage
-            localStorage.setItem('wingoHistory', JSON.stringify(historyData));
+            saveHistory();
             
             updateStats();
             updateHistory();
@@ -574,7 +612,7 @@
             const resultDisplay = item.result ? (item.result === 'BIG' ? 'B' : 'S') : '-';
             
             row.innerHTML = `
-                <td>${item.period}</td>
+                <td>${formatPeriod(item.period)}</td>
                 <td>${item.prediction}</td>
                 <td>${resultDisplay}</td>
                 <td class="${item.status.toLowerCase()}">${item.status}</td>
@@ -584,9 +622,10 @@
     }
 
     // Initialize
+    loadHistory();
     updatePrediction();
     // Update every 5 seconds
     setInterval(updatePrediction, 1000);
 </script>
 </body>
-</html>)
+</html>
