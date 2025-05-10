@@ -198,10 +198,10 @@
             <p><b>Period:</b> <span id="currentPeriod">Loading...</span></p>
             <p><b>Prediction:</b> <span id="prediction">Loading...</span></p>
             <div class="algorithm-info" id="algorithmInfo">
-                New algorithm analyzing last 2 digits and previous result...
+                AK WINGO PREDICTOR V2 DEVELOPER SURYA
             </div>
             <div class="calculation" id="calculationSteps">
-                Calculation will appear here...
+                AI Calculation will appear here...
             </div>
         </div>
         
@@ -329,7 +329,7 @@
         // Convert to numbers
         const digit1 = parseInt(last2Digits[0]);
         const digit2 = parseInt(last2Digits[1]);
-       // calculationSteps.push(`Digits: ${digit1} and ${digit2}`);
+        //calculationSteps.push(`Digits: ${digit1} and ${digit2}`);
         
         // Get last result number (0-9)
         const lastNum = lastResult !== null ? lastResult : 0;
@@ -362,13 +362,13 @@
         if (finalSum > 9) {
             // If sum is >9, take last digit
             const lastSumDigit = finalSum % 10;
-            //calculationSteps.push(`Sum > 9, using last digit: ${lastSumDigit}`);
+            calculationSteps.push(`Sum > 9, using last digit: ${lastSumDigit}`);
             prediction = lastSumDigit >= 5 ? 'BIG' : 'SMALL';
         } else {
             prediction = finalSum >= 5 ? 'BIG' : 'SMALL';
         }
         
-        //calculationSteps.push(`Final prediction: ${prediction} (${finalSum >= 5 ? '≥5 '<5'})`);
+        //calculationSteps.push(`Final prediction: ${prediction} (${finalSum >= 5 ? '≥5' : '<5'})`);
         
         // Update calculation display
         document.getElementById("calculationSteps").innerHTML = calculationSteps.join('<br>');
@@ -396,39 +396,44 @@
                 // Update last result number
                 lastResultNumber = results[0].result;
                 
-                // Update previous prediction status if available
-                if (historyData.length > 0 && historyData[0].status === 'PENDING') {
-                    const prevPeriod = historyData[0].period;
-                    const prevResult = results.find(r => r.period === prevPeriod);
-                    
-                    if (prevResult) {
-                        historyData[0].result = prevResult.resultType;
-                        historyData[0].status = historyData[0].prediction === prevResult.resultType ? 'WIN' : 'LOSS';
+                // Check if we already have this period in history to avoid duplicates
+                const periodExists = historyData.some(item => item.period === currentPeriod);
+                
+                if (!periodExists) {
+                    // Update previous prediction status if available
+                    if (historyData.length > 0 && historyData[0].status === 'PENDING') {
+                        const prevPeriod = historyData[0].period;
+                        const prevResult = results.find(r => r.period === prevPeriod);
+                        
+                        if (prevResult) {
+                            historyData[0].result = prevResult.resultType;
+                            historyData[0].status = historyData[0].prediction === prevResult.resultType ? 'WIN' : 'LOSS';
+                        }
                     }
+                    
+                    // Calculate new prediction with new algorithm
+                    const prediction = calculatePrediction(currentPeriod, lastResultNumber);
+                    document.getElementById("prediction").textContent = prediction;
+                    document.getElementById("algorithmInfo").textContent = 
+                       // `Using period last 2 digits and last result (${lastResultNumber !== null ? lastResultNumber : 'N/A'})`;
+                    
+                    // Add to history only if it's a new period
+                    historyData.unshift({
+                        period: currentPeriod,
+                        prediction: prediction,
+                        result: null,
+                        status: 'PENDING'
+                    });
+                    
+                    // Keep history limited
+                    if (historyData.length > HISTORY_LENGTH) {
+                        historyData = historyData.slice(0, HISTORY_LENGTH);
+                    }
+                    
+                    // Save to local storage
+                    localStorage.setItem('wingoHistory', JSON.stringify(historyData));
                 }
             }
-            
-            // Calculate new prediction with new algorithm
-            const prediction = calculatePrediction(currentPeriod, lastResultNumber);
-            document.getElementById("prediction").textContent = prediction;
-            document.getElementById("algorithmInfo").textContent = 
-                //`Using period last 2 digits and last result (${lastResultNumber !== null ? lastResultNumber : 'N/A'})`;
-            
-            // Add to history
-            historyData.unshift({
-                period: currentPeriod,
-                prediction: prediction,
-                result: null,
-                status: 'PENDING'
-            });
-            
-            // Keep history limited
-            if (historyData.length > HISTORY_LENGTH) {
-                historyData = historyData.slice(0, HISTORY_LENGTH);
-            }
-            
-            // Save to local storage
-            localStorage.setItem('wingoHistory', JSON.stringify(historyData));
             
             updateStats();
             updateHistory();
