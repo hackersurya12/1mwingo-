@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AK Updated Wingo</title>
+    <title>AK Wingo Prediction v2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -156,15 +156,6 @@
             color: rgba(255, 255, 255, 0.8);
         }
         
-        .calculation {
-            margin-top: 10px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            font-size: 12px;
-            text-align: left;
-        }
-        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -180,162 +171,37 @@
             margin-right: 5px;
         }
         
-        /* Instagram Button Styles */
-        .instagram-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: bold;
-            margin: 15px 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
+        .algorithm-info {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 10px;
+            text-align: left;
         }
         
-        .instagram-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-        }
-        
-        .instagram-btn i {
-            margin-right: 8px;
-            font-size: 18px;
-        }
-        
-        /* Enhanced History Table */
-        .history-container {
-            margin-top: 20px;
-        }
-        
-        .history-table {
-            width: 100%;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .history-table thead {
-            background: linear-gradient(to right, #FFD700, #FFA500);
-            color: #000;
-        }
-        
-        .history-table th {
-            padding: 12px 8px;
-            font-weight: 700;
-        }
-        
-        .history-table td {
-            padding: 10px 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .history-table tr:nth-child(even) {
-            background: rgba(255, 255, 255, 0.03);
-        }
-        
-        .history-table tr:hover {
-            background: rgba(255, 215, 0, 0.1);
-        }
-        
-        /* Alert Modal */
-        .alert-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .alert-content {
-            background: linear-gradient(135deg, #ff0000, #8B0000);
-            padding: 25px;
-            border-radius: 15px;
-            max-width: 90%;
-            width: 350px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            border: 2px solid gold;
-            text-align: center;
-            animation: shake 0.5s ease;
-        }
-        
-        .alert-content h3 {
-            color: white;
-            font-size: 24px;
-            margin-bottom: 15px;
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-        }
-        
-        .alert-content p {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 18px;
-            line-height: 1.5;
-        }
-        
-        .alert-btn {
-            background: gold;
-            color: black;
-            border: none;
-            padding: 10px 25px;
-            border-radius: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .alert-btn:hover {
-            background: #FFD700;
-            transform: scale(1.05);
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
-        }
-        
-        .consecutive-loss {
-            animation: blink 1s infinite;
-            background: rgba(255, 0, 0, 0.2) !important;
-        }
-        
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+        .calculation {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
-    <!-- Alert Modal -->
-    <div class="alert-modal" id="alertModal">
-        <div class="alert-content">
-            <h3><i class="fas fa-exclamation-triangle"></i> WARNING!</h3>
-            <p>PLEASE WAIT FOR SERVER ANALYSIS<br>DON'T BET NOW</p>
-            <button class="alert-btn" onclick="closeAlert()">UNDERSTOOD</button>
-        </div>
-    </div>
-
     <div class="container">
         <div class="box">
-            <h2><i class="fas fa-crown status-icon"></i>SURYA AK WINGO 1M</h2>
+            <h2><i class="fas fa-crown status-icon"></i>AK WINGO PREDICTOR v2</h2>
             <div class="timer">Last updated: <span id="updateTime">Just now</span></div>
         </div>
         
         <div class="box">
             <p><b>Period:</b> <span id="currentPeriod">Loading...</span></p>
             <p><b>Prediction:</b> <span id="prediction">Loading...</span></p>
+            <div class="algorithm-info" id="algorithmInfo">
+                New algorithm analyzing last 2 digits and previous result...
+            </div>
             <div class="calculation" id="calculationSteps">
-                Calculation steps will appear here...
+                Calculation will appear here...
             </div>
         </div>
         
@@ -361,61 +227,32 @@
             </div>
         </div>
         
-        <!-- Instagram Button -->
-        <div class="box" style="text-align: center;">
-            <a href="https://www.instagram.com/surya_sivan_magan?igsh=M2FoYWViZjQ3NDN5" class="instagram-btn" target="_blank">
-                <i class="fab fa-instagram"></i> Follow for Updates
-            </a>
-        </div>
-        
-        <!-- Enhanced History Table -->
         <div class="box">
-            <h2><i class="fas fa-history status-icon"></i>Prediction History</h2>
-            <div class="history-container">
-                <table class="history-table">
-                    <thead>
-                        <tr>
-                            <th>Period</th>
-                            <th>Prediction</th>
-                            <th>Result</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyList"></tbody>
-                </table>
-            </div>
+            <h2><i class="fas fa-history status-icon"></i>History</h2>
+            <table id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Period</th>
+                        <th>Prediction</th>
+                        <th>Result</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="historyList"></tbody>
+            </table>
         </div>
     </div>
 
 <script>
     let historyData = JSON.parse(localStorage.getItem('wingoHistory')) || [];
     let lastFetchedPeriod = null;
+    let lastResultNumber = null;
     const HISTORY_LENGTH = 10;
-    let consecutiveLosses = 0;
-    let alertShown = false;
+    let calculationSteps = [];
 
     // Update timestamp
     function updateTimestamp() {
         document.getElementById('updateTime').textContent = new Date().toLocaleTimeString();
-    }
-
-    // Show alert modal
-    function showAlert() {
-        const modal = document.getElementById('alertModal');
-        modal.style.display = 'flex';
-        alertShown = true;
-        
-        // Auto-close after 30 seconds
-        setTimeout(() => {
-            if (modal.style.display === 'flex') {
-                closeAlert();
-            }
-        }, 30000);
-    }
-
-    // Close alert modal
-    function closeAlert() {
-        document.getElementById('alertModal').style.display = 'none';
     }
 
     // Fetch current game issue
@@ -469,7 +306,8 @@
             if (data.code === 0 && data.data.list.length > 0) {
                 return data.data.list.map(item => ({
                     period: item.issueNumber,
-                    result: item.number
+                    result: item.number,
+                    resultType: item.number >= 5 ? 'BIG' : 'SMALL'
                 }));
             }
             return [];
@@ -479,94 +317,63 @@
         }
     }
 
-    // Calculate prediction based on first 2 and last 2 digits of period
-    function calculatePrediction(period) {
+    // New prediction algorithm based on last 2 digits and previous result
+    function calculatePrediction(period, lastResult) {
+        calculationSteps = [];
+        
+        // Get last 2 digits of the period
         const periodStr = period.toString();
-        const first2Digits = periodStr.length >= 2 ? parseInt(periodStr.slice(0, 2)) : 0;
-        const last2Digits = periodStr.length >= 2 ? parseInt(periodStr.slice(-2)) : 0;
+        const last2Digits = periodStr.slice(-2).padStart(2, '0');
+        //calculationSteps.push(`Period last 2 digits: ${last2Digits}`);
         
-        // Human calculation steps
-        let calculationSteps = [
-            //`Period: ${period}`,
-           // `First 2 digits: ${first2Digits}`,
-           // `Last 2 digits: ${last2Digits}`
-        ];
+        // Convert to numbers
+        const digit1 = parseInt(last2Digits[0]);
+        const digit2 = parseInt(last2Digits[1]);
+       // calculationSteps.push(`Digits: ${digit1} and ${digit2}`);
         
-        // Step 1: Sum of first 2 and last 2 digits
-        const sum = first2Digits + last2Digits;
-        //calculationSteps.push(`Sum: ${first2Digits} + ${last2Digits} = ${sum}`);
+        // Get last result number (0-9)
+        const lastNum = lastResult !== null ? lastResult : 0;
+        //calculationSteps.push(`Last result number: ${lastNum}`);
         
-        // Step 2: Check if sum is even or odd
-        const isSumEven = sum % 2 === 0;
-        //calculationSteps.push(`Sum is ${isSumEven ? 'even' : 'odd'}`);
+        // Calculate sum of digits minus last result
+        const sum = digit1 + digit2;
+        //calculationSteps.push(`Sum of digits: ${digit1} + ${digit2} = ${sum}`);
         
-        // Step 3: Check if sum is greater than or less than 50
-        const isSumAbove50 = sum > 50;
-       // calculationSteps.push(`Sum is ${isSumAbove50 ? '>' : '<='} 50`);
+        const adjustedSum = sum - lastNum;
+        //calculationSteps.push(`Adjusted sum: ${sum} - ${lastNum} = ${adjustedSum}`);
         
-        // Step 4: Check if first digit is greater than last digit
-        const firstDigit = parseInt(periodStr[0]);
-        const lastDigit = parseInt(periodStr[periodStr.length - 1]);
-        const isFirstGreater = firstDigit > lastDigit;
-       // calculationSteps.push(`First digit (${firstDigit}) is ${isFirstGreater ? '>' : '<='} last digit (${lastDigit})`);
+        // Ensure we have a positive 2-digit number
+        let finalNumber = Math.abs(adjustedSum) % 100;
+        if (finalNumber < 10) finalNumber = '0' + finalNumber;
+       // calculationSteps.push(`Final calculation: ${Math.abs(adjustedSum)} % 100 = ${finalNumber}`);
         
-        // Decision making
+        // Convert to string to get individual digits
+        const finalStr = finalNumber.toString().padStart(2, '0');
+        const calcDigit1 = parseInt(finalStr[0]);
+        const calcDigit2 = parseInt(finalStr[1]);
+        //calculationSteps.push(`Calculation digits: ${calcDigit1} and ${calcDigit2}`);
+        
+        // Sum the calculation digits
+        const finalSum = calcDigit1 + calcDigit2;
+        //calculationSteps.push(`Sum of calculation digits: ${calcDigit1} + ${calcDigit2} = ${finalSum}`);
+        
+        // Determine prediction based on final sum
         let prediction;
-        
-        if (isSumEven && isSumAbove50) {
-            prediction = 'BIG';
-            //calculationSteps.push('Condition: Even sum AND sum > 50 → BIG');
-        } 
-        else if (!isSumEven && !isSumAbove50) {
-            prediction = 'SMALL';
-            //calculationSteps.push('Condition: Odd sum AND sum <= 50 → SMALL');
-        }
-        else if (isFirstGreater) {
-            prediction = 'BIG';
-            //calculationSteps.push('Condition: First digit > last digit → BIG');
-        }
-        else {
-            prediction = 'SMALL';
-            //calculationSteps.push('Condition: Default fallback → SMALL');
+        if (finalSum > 9) {
+            // If sum is >9, take last digit
+            const lastSumDigit = finalSum % 10;
+            //calculationSteps.push(`Sum > 9, using last digit: ${lastSumDigit}`);
+            prediction = lastSumDigit >= 5 ? 'BIG' : 'SMALL';
+        } else {
+            prediction = finalSum >= 5 ? 'BIG' : 'SMALL';
         }
         
-        // Display calculation steps
-        document.getElementById('calculationSteps').innerHTML = calculationSteps.join('<br>');
+        //calculationSteps.push(`Final prediction: ${prediction} (${finalSum >= 5 ? '≥5 '<5'})`);
+        
+        // Update calculation display
+        document.getElementById("calculationSteps").innerHTML = calculationSteps.join('<br>');
         
         return prediction;
-    }
-
-    // Determine if number is BIG or SMALL
-    function getResultType(number) {
-        return number >= 5 ? 'BIG' : 'SMALL';
-    }
-
-    // Check for consecutive losses
-    function checkConsecutiveLosses() {
-        // Reset if we have a win
-        if (historyData.length > 0 && historyData[0].status === 'WIN') {
-            consecutiveLosses = 0;
-            alertShown = false;
-            return;
-        }
-        
-        // Count consecutive losses
-        let currentLosses = 0;
-        for (let i = 0; i < historyData.length; i++) {
-            if (historyData[i].status === 'LOSS') {
-                currentLosses++;
-                if (currentLosses >= 3) break;
-            } else {
-                break;
-            }
-        }
-        
-        consecutiveLosses = currentLosses;
-        
-        // Show alert if 3 consecutive losses and not already shown
-        if (consecutiveLosses >= 3 && !alertShown) {
-            showAlert();
-        }
     }
 
     // Update the prediction display
@@ -578,32 +385,34 @@
         
         document.getElementById("currentPeriod").textContent = currentPeriod;
         
+        // Get results to check previous predictions and get last result
+        const results = await fetchGameResults();
+        
         // Only proceed if we have a new period
         if (lastFetchedPeriod !== currentPeriod) {
             lastFetchedPeriod = currentPeriod;
             
-            // Get results to check previous predictions
-            const results = await fetchGameResults();
             if (results.length > 0) {
+                // Update last result number
+                lastResultNumber = results[0].result;
+                
                 // Update previous prediction status if available
                 if (historyData.length > 0 && historyData[0].status === 'PENDING') {
                     const prevPeriod = historyData[0].period;
                     const prevResult = results.find(r => r.period === prevPeriod);
                     
                     if (prevResult) {
-                        const resultType = getResultType(prevResult.result);
-                        historyData[0].result = resultType;
-                        historyData[0].status = historyData[0].prediction === resultType ? 'WIN' : 'LOSS';
+                        historyData[0].result = prevResult.resultType;
+                        historyData[0].status = historyData[0].prediction === prevResult.resultType ? 'WIN' : 'LOSS';
                     }
                 }
             }
             
-            // Check for consecutive losses
-            checkConsecutiveLosses();
-            
-            // Calculate new prediction
-            const prediction = calculatePrediction(currentPeriod);
+            // Calculate new prediction with new algorithm
+            const prediction = calculatePrediction(currentPeriod, lastResultNumber);
             document.getElementById("prediction").textContent = prediction;
+            document.getElementById("algorithmInfo").textContent = 
+                //`Using period last 2 digits and last result (${lastResultNumber !== null ? lastResultNumber : 'N/A'})`;
             
             // Add to history
             historyData.unshift({
@@ -641,14 +450,9 @@
         const historyTable = document.getElementById("historyList");
         historyTable.innerHTML = "";
         
-        historyData.forEach((item, index) => {
+        historyData.forEach(item => {
             const row = document.createElement("tr");
             const resultDisplay = item.result ? (item.result === 'BIG' ? 'B' : 'S') : '-';
-            
-            // Highlight if part of consecutive losses
-            if (index < consecutiveLosses && item.status === 'LOSS') {
-                row.classList.add('consecutive-loss');
-            }
             
             row.innerHTML = `
                 <td>${item.period}</td>
