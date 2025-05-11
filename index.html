@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AK Wingo Prediction v2</title>
+    <title>AK Updated Wingo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -51,6 +51,11 @@
             margin-bottom: 10px;
             font-size: 22px;
             text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+        
+        .title-animation {
+            animation: shakeGlow 2s infinite;
+            display: inline-block;
         }
         
         .grid { 
@@ -167,6 +172,14 @@
             100% { opacity: 1; }
         }
         
+        @keyframes shakeGlow {
+            0% { transform: translateX(0) rotate(0deg); text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+            205% { transform: translateX(-2px) rotate(-1deg); text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); }
+            50% { transform: translateX(60px) rotate(1deg); text-shadow: 0 0 20px rgba(255, 215, 0, 1); }
+            75% { transform: translateX(-2px) rotate(-1deg); text-shadow: 0 0 10px rgba(255, 215, 0, 0.8); }
+            100% { transform: translateX(0) rotate(0deg); text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+        }
+        
         .status-icon {
             margin-right: 5px;
         }
@@ -179,29 +192,40 @@
         }
         
         .calculation {
+            font-family: monospace;
             background: rgba(255, 255, 255, 0.1);
             padding: 8px;
-            border-radius: 8px;
-            margin-top: 10px;
+            border-radius: 5px;
+            margin: 8px 0;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            display: none;
+        }
+        
+        .final-prediction {
             font-family: monospace;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            border-radius: 5px;
+            margin: 8px 0;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="box">
-            <h2><i class="fas fa-crown status-icon"></i>AK WINGO PREDICTOR v2</h2>
+            <h2><i class="fas fa-crown status-icon"></i><span class="title-animation">SURYA AK WINGO 1M</span></h2>
             <div class="timer">Last updated: <span id="updateTime">Just now</span></div>
         </div>
         
         <div class="box">
-            <p><b>Period:</b> <span id="currentPeriod">Loading...</span></p>
-            <p><b>Prediction:</b> <span id="prediction">calculating...</span></p>
-            <div class="algorithm-info" id="algorithmInfo">
-                AK WINGO PREDICTOR V2 DEVELOPER SURYA
-            </div>
-            <div class="calculation" id="calculationSteps">
-                AI Calculation will appear here...
+            <p><b>Current Period:</b> <span id="currentPeriod">Loading...</span></p>
+            <p><b>Prediction:</b> <span id="prediction">Loading...</span></p>
+            <div class="algorithm-info">
+                <div class="calculation" id="calculationSteps">Waiting for data to calculate prediction...</div>
+                <div class="final-prediction" id="finalPrediction"></div>
             </div>
         </div>
         
@@ -246,9 +270,9 @@
 <script>
     let historyData = JSON.parse(localStorage.getItem('wingoHistory')) || [];
     let lastFetchedPeriod = null;
-    let lastResultNumber = null;
-    const HISTORY_LENGTH = 11;
-    let calculationSteps = [];
+    const HISTORY_LENGTH = 10;
+    let lastResults = [];
+    let predictionStored = false;
 
     // Update timestamp
     function updateTimestamp() {
@@ -306,8 +330,7 @@
             if (data.code === 0 && data.data.list.length > 0) {
                 return data.data.list.map(item => ({
                     period: item.issueNumber,
-                    result: item.number,
-                    resultType: item.number >= 5 ? 'BIG' : 'SMALL'
+                    result: parseInt(item.number)
                 }));
             }
             return [];
@@ -317,63 +340,56 @@
         }
     }
 
-    // New prediction algorithm based on last 2 digits and previous result
-    function calculatePrediction(period, lastResult) {
-        calculationSteps = [];
+    // New prediction calculation method
+    function calculatePrediction(results) {
+        let calculationSteps = [];
         
-        // Get last 2 digits of the period
-        const periodStr = period.toString();
-        const last2Digits = periodStr.slice(-2).padStart(2, '0');
-        //calculationSteps.push(`Period last 2 digits: ${last2Digits}`);
-        
-        // Convert to numbers
-        const digit1 = parseInt(last2Digits[0]);
-        const digit2 = parseInt(last2Digits[1]);
-        //calculationSteps.push(`Digits: ${digit1} and ${digit2}`);
-        
-        // Get last result number (0-9)
-        const lastNum = lastResult !== null ? lastResult : 0;
-        //calculationSteps.push(`Last result number: ${lastNum}`);
-        
-        // Calculate sum of digits minus last result
-        const sum = digit1 + digit2;
-        //calculationSteps.push(`Sum of digits: ${digit1} + ${digit2} = ${sum}`);
-        
-        const adjustedSum = sum - lastNum;
-        //calculationSteps.push(`Adjusted sum: ${sum} - ${lastNum} = ${adjustedSum}`);
-        
-        // Ensure we have a positive 2-digit number
-        let finalNumber = Math.abs(adjustedSum) % 100;
-        if (finalNumber < 10) finalNumber = '0' + finalNumber;
-       // calculationSteps.push(`Final calculation: ${Math.abs(adjustedSum)} % 100 = ${finalNumber}`);
-        
-        // Convert to string to get individual digits
-        const finalStr = finalNumber.toString().padStart(2, '0');
-        const calcDigit1 = parseInt(finalStr[0]);
-        const calcDigit2 = parseInt(finalStr[1]);
-        //calculationSteps.push(`Calculation digits: ${calcDigit1} and ${calcDigit2}`);
-        
-        // Sum the calculation digits
-        const finalSum = calcDigit1 + calcDigit2;
-        //calculationSteps.push(`Sum of calculation digits: ${calcDigit1} + ${calcDigit2} = ${finalSum}`);
-        
-        // Determine prediction based on final sum
-        let prediction;
-        if (finalSum > 9) {
-            // If sum is >9, take last digit
-            const lastSumDigit = finalSum % 10;
-            calculationSteps.push(`Sum > 9, using last digit: ${lastSumDigit}`);
-            prediction = lastSumDigit >= 5 ? 'BIG' : 'SMALL';
-        } else {
-            prediction = finalSum >= 5 ? 'BIG' : 'SMALL';
+        if (results.length < 2) {
+            calculationSteps.push("Not enough data (need at least 2 previous results)");
+            document.getElementById("calculationSteps").innerHTML = calculationSteps.join("\n");
+            return { prediction: "SMALL", steps: calculationSteps };
         }
         
-        //calculationSteps.push(`Final prediction: ${prediction} (${finalSum >= 5 ? '≥5' : '<5'})`);
+        // Get last two results
+        const lastResult = results[0].result;
+        const prevResult = results[1].result;
+        const lastPeriod = results[0].period;
         
-        // Update calculation display
-        document.getElementById("calculationSteps").innerHTML = calculationSteps.join('<br>');
+        calculationSteps.push(`Last Period: ${lastPeriod}`);
+        calculationSteps.push(`Last Result: ${lastResult}`);
+        calculationSteps.push(`Previous Result: ${prevResult}`);
         
-        return prediction;
+        // Get last digit of last period
+        const lastPeriodDigit = parseInt(lastPeriod.toString().slice(-1));
+        calculationSteps.push(`Last Digit of Last Period: ${lastPeriodDigit}`);
+        
+        // Calculation steps
+        calculationSteps.push("\nCalculation Steps:");
+        calculationSteps.push(`1. Add last digit of last period (${lastPeriodDigit}) + last result (${lastResult})`);
+        const step1 = lastPeriodDigit + lastResult;
+        calculationSteps.push(`   = ${lastPeriodDigit} + ${lastResult} = ${step1}`);
+        
+        calculationSteps.push(`2. Subtract previous result (${prevResult})`);
+        const step2 = step1 - prevResult;
+        calculationSteps.push(`   = ${step1} - ${prevResult} = ${step2}`);
+        
+        calculationSteps.push("3. Sum the digits of the result");
+        const step3 = Math.abs(step2).toString().split('').reduce((a, b) => parseInt(a) + parseInt(b), 0);
+        calculationSteps.push(`   = Sum of digits of ${step2} = ${step3}`);
+        
+        // Final prediction
+        const prediction = step3 >= 5 ? "BIG" : "SMALL";
+        calculationSteps.push(`\nFinal Prediction: ${step3} → ${prediction}`);
+        
+        document.getElementById("calculationSteps").innerHTML = calculationSteps.join("\n");
+        document.getElementById("finalPrediction").textContent = `NumberPredction: ${step3} → ${prediction}`;
+        
+        return { prediction, steps: calculationSteps };
+    }
+
+    // Determine if number is BIG or SMALL
+    function getResultType(number) {
+        return number >= 5 ? 'BIG' : 'SMALL';
     }
 
     // Update the prediction display
@@ -385,54 +401,53 @@
         
         document.getElementById("currentPeriod").textContent = currentPeriod;
         
-        // Get results to check previous predictions and get last result
-        const results = await fetchGameResults();
-        
         // Only proceed if we have a new period
         if (lastFetchedPeriod !== currentPeriod) {
             lastFetchedPeriod = currentPeriod;
+            predictionStored = false; // Reset flag for new period
             
+            // Get results to check previous predictions
+            const results = await fetchGameResults();
             if (results.length > 0) {
-                // Update last result number
-                lastResultNumber = results[0].result;
+                lastResults = results;
                 
-                // Check if we already have this period in history to avoid duplicates
-                const periodExists = historyData.some(item => item.period === currentPeriod);
-                
-                if (!periodExists) {
-                    // Update previous prediction status if available
-                    if (historyData.length > 0 && historyData[0].status === 'PENDING') {
-                        const prevPeriod = historyData[0].period;
-                        const prevResult = results.find(r => r.period === prevPeriod);
-                        
-                        if (prevResult) {
-                            historyData[0].result = prevResult.resultType;
-                            historyData[0].status = historyData[0].prediction === prevResult.resultType ? 'WIN' : 'LOSS';
-                        }
+                // Update previous prediction status if available
+                if (historyData.length > 0 && historyData[0].status === 'PENDING') {
+                    const prevPeriod = historyData[0].period;
+                    const prevResult = results.find(r => r.period === prevPeriod);
+                    
+                    if (prevResult) {
+                        const resultType = getResultType(prevResult.result);
+                        historyData[0].result = resultType;
+                        historyData[0].status = historyData[0].prediction === resultType ? 'WIN' : 'LOSS';
                     }
-                    
-                    // Calculate new prediction with new algorithm
-                    const prediction = calculatePrediction(currentPeriod, lastResultNumber);
-                    document.getElementById("prediction").textContent = prediction;
-                    document.getElementById("algorithmInfo").textContent = 
-                       // `Using period last 2 digits and last result (${lastResultNumber !== null ? lastResultNumber : 'N/A'})`;
-                    
-                    // Add to history only if it's a new period
-                    historyData.unshift({
-                        period: currentPeriod,
-                        prediction: prediction,
-                        result: null,
-                        status: 'PENDING'
-                    });
-                    
-                    // Keep history limited
-                    if (historyData.length > HISTORY_LENGTH) {
-                        historyData = historyData.slice(0, HISTORY_LENGTH);
-                    }
-                    
-                    // Save to local storage
-                    localStorage.setItem('wingoHistory', JSON.stringify(historyData));
                 }
+            }
+            
+            // Calculate new prediction with new algorithm
+            const { prediction, steps } = calculatePrediction(lastResults);
+            document.getElementById("prediction").textContent = prediction;
+            
+            // Check if this period already exists in history
+            const periodExists = historyData.some(item => item.period === currentPeriod);
+            
+            // Add to history only if not already stored for this period
+            if (!periodExists && !predictionStored) {
+                historyData.unshift({
+                    period: currentPeriod,
+                    prediction: prediction,
+                    result: null,
+                    status: 'PENDING'
+                });
+                predictionStored = true;
+                
+                // Keep history limited
+                if (historyData.length > HISTORY_LENGTH) {
+                    historyData = historyData.slice(0, HISTORY_LENGTH);
+                }
+                
+                // Save to local storage
+                localStorage.setItem('wingoHistory', JSON.stringify(historyData));
             }
             
             updateStats();
@@ -458,9 +473,10 @@
         historyData.forEach(item => {
             const row = document.createElement("tr");
             const resultDisplay = item.result ? (item.result === 'BIG' ? 'B' : 'S') : '-';
+            const shortPeriod = item.period.toString().slice(-4); // Show only last 4 digits
             
             row.innerHTML = `
-                <td>${item.period}</td>
+                <td>${shortPeriod}</td>
                 <td>${item.prediction}</td>
                 <td>${resultDisplay}</td>
                 <td class="${item.status.toLowerCase()}">${item.status}</td>
