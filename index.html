@@ -791,7 +791,7 @@
     document.getElementById('last-updated').textContent = lastUpdatedTime.toLocaleTimeString();
     
     // ✅ Auto-Fetch Every 5 Seconds
-    setInterval(fetchCurrentGameIssue, 5000);
+    setInterval(fetchCurrentGameIssue, 1000);
     fetchCurrentGameIssue();
     
     // Save data before unload
@@ -800,7 +800,7 @@
         total: totalPredictions,
         correct: correctPredictions
       }));
-      localStorage.setItem("consecutiveLosses", consecutiveLosses.toString());
+      //localStorage.setItem("consecutiveLosses", consecutiveLosses.toString());
     });
   })();
   </script>
