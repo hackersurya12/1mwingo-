@@ -21,134 +21,75 @@
       75% { transform: rotate(10deg); }
       100% { transform: rotate(0deg); }
     }
-    @keyframes shakeLost {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      50% { transform: translateX(5px); }
-      75% { transform: translateX(-5px); }
-      100% { transform: translateX(0); }
-    }
     .trophy-shake {
       display: inline-block;
       animation: shakeTrophy 0.5s ease-in-out;
     }
-    .lost-shake {
-      display: inline-block;
-      animation: shakeLost 0.5s ease-in-out;
+    .accuracy-meter {
+      height: 10px;
+      border-radius: 5px;
+      background: linear-gradient(to right, #ef4444, #f59e0b, #10b981);
     }
-
-    .alert-banner {
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0% { background-color: #fee2e2; }
-      50% { background-color: #fecaca; }
-      100% { background-color: #fee2e2; }
-    }
-    
-    
-    
-    .pattern-badge {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: bold;
-      margin-left: 5px;
-    }
-    
-    .period-analysis {
-      background-color: #f0fdf4;
-      border-left: 4px solid #10b981;
-      padding: 8px;
-      margin-top: 5px;
-      border-radius: 0 4px 4px 0;
+    .accuracy-fill {
+      height: 100%;
+      border-radius: 5px;
+      background-color: #10b981;
+      transition: width 0.5s ease;
     }
   </style>
 </head>
-<body class="bg-green-50 font-['El_Messiri']">
+<body class="bg-Lite green-100 font-['El_Messiri']">
   
-  <div class="container mx-auto p-5 max-w-md">
-    <h1 class="text-center text-3xl font-bold text-green-600 mb-2">TKS AI PRO</h1>
-    <p class="text-center text-sm text-gray-600 mb-4">Period-Based Prediction System</p>
-
-    <!-- Alert Banner (hidden by default) -->
-    <div id="alert-banner" class="alert-banner hidden p-3 rounded-lg shadow-md mb-4 text-center border border-red-500">
-      <p class="text-red-700 font-bold"><i class="fas fa-exclamation-triangle mr-2"></i> WARNING: 3 CONSECUTIVE LOSSES DETECTED!</p>
-      <p class="text-red-600">System recommends stopping play for 10 rounds</p>
-    </div>
+  <div class="container mx-auto p-5">
+    <h1 class="text-center text-3xl font-bold text-green-600">TKS AI PRO</h1>
 
     <!-- Period & Result Box -->
     <div class="bg-white p-4 rounded-lg shadow-md mt-4 text-center">
-      <p class="text-lg font-semibold text-gray-700"><i class="fas fa-calendar-alt"></i> Period: <span id="period-number" class="text-black font-bold"></span></p>
-      <div id="period-analysis" class="period-analysis hidden text-xs text-left">
-        <p>Period Analysis: <span id="period-analysis-text"></span></p>
-      </div>
-      <p class="text-lg font-semibold text-gray-700 mt-2"><i class="fas fa-chart-line"></i> Result: <span id="predicted-result" class="text-green-500 font-bold">Loading...</span></p>
-      <div class="mt-3">
+      <p class="text-lg font-semibold text-gray-700"><i class="fas fa-calendar-alt"></i> Period: <span id="period-number" class="text-black"></span></p>
+      <p class="text-lg font-semibold text-lite blu-700"><i class="fas fa-chart-line"></i> Result: <span id="predicted-result" class="text-green-500 font-bold">Loading...</span></p>
+      <div class="mt-2">
         <div class="accuracy-meter">
           <div id="accuracy-fill" class="accuracy-fill" style="width: 0%"></div>
         </div>
-        <p class="text-sm text-gray-600 mt-1">AI Accuracy: <span id="accuracy-value">0%</span> (<span id="prediction-count">0</span> predictions)</p>
+        <p class="text-sm text-gray-600 mt-1">AI Accuracy: <span id="accuracy-value">0%</span></p>
       </div>
     </div>
 
     <!-- Analysis Section -->
     <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-      <h2 class="text-lg font-semibold text-gray-700 text-center mb-2">Analysis</h2>
-      <div class="grid grid-cols-3 gap-4 mt-2">
+      <h2 class="text-lg font-semibold text-gray-700 text-center">Analysis</h2>
+      <div class="grid grid-cols-2 gap-4 mt-2">
         <div class="bg-green-50 p-3 rounded text-center">
           <p class="text-gray-600">Win Count</p>
           <p id="won-count" class="text-xl font-bold text-green-500">0</p>
         </div>
-        <div class="bg-red-50 p-3 rounded text-center">
+        <div class="bg-green-50 p-3 rounded text-center">
           <p class="text-gray-600">Loss Count</p>
           <p id="lost-count" class="text-xl font-bold text-red-500">0</p>
         </div>
-        <div class="bg-blue-50 p-3 rounded text-center">
+        <div class="bg-green-50 p-3 rounded text-center">
           <p class="text-gray-600">Win %</p>
-          <p id="won-percentage" class="text-xl font-bold text-blue-500">0%</p>
+          <p id="won-percentage" class="text-xl font-bold text-green-500">0%</p>
         </div>
-      </div>
-      <div class="mt-3 text-center">
-        <p class="text-sm text-gray-600">Current Streak: <span id="current-streak" class="font-bold">0</span> <span id="streak-type" class=""></span></p>
-      </div>
-    </div>
-
-    <!-- Auto Reserve Section -->
-    <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-      <h2 class="text-lg font-semibold text-gray-700 text-center mb-2">Auto Reserve</h2>
-      <div class="flex justify-between items-center mt-2">
-        <span class="text-sm text-gray-600">Status:</span>
-        <span id="auto-reserve-status" class="text-sm font-bold text-green-500">Active</span>
-      </div>
-      <div class="mt-2">
-        <div class="flex justify-between items-center">
-          <span class="text-sm text-gray-600">Next Prediction:</span>
-          <span id="next-prediction" class="text-sm font-bold text-blue-500">Calculating...</span>
+        <div class="bg-green-50 p-3 rounded text-center">
+          <p class="text-gray-600">Streak</p>
+          <p id="current-streak" class="text-xl font-bold text-gray-500">0</p>
         </div>
       </div>
     </div>
 
     <!-- Pattern Detection Section -->
     <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-      <h2 class="text-lg font-semibold text-gray-700 text-center mb-2">Pattern Detection</h2>
+      <h2 class="text-lg font-semibold text-gray-700 text-center">Period Analysis</h2>
       <div id="pattern-info" class="text-center text-sm text-gray-600 mt-2">
-        Analyzing game patterns...
+        Analyzing period patterns...
       </div>
-      <div id="pattern-details" class="text-center text-xs text-gray-500 mt-1"></div>
     </div>
 
     <!-- History Section -->
     <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-      <h2 class="text-lg font-semibold text-gray-700 text-center mb-2">History (Last 10)</h2>
+      <h2 class="text-lg font-semibold text-gray-700 text-center">History</h2>
       <div id="history-list" class="grid grid-cols-1 gap-1 mt-1"></div>
-    </div>
-    
-    <!-- Footer -->
-    <div class="text-center text-xs text-gray-500 mt-4">
-      <p>Period-Based AI System v2.2</p>
-      <p class="mt-1">Updated: <span id="last-updated"></span></p>
     </div>
   </div>
 
@@ -157,334 +98,50 @@
   let latestResult = null;
   let latestPeriod = null;
   let storedHistory = JSON.parse(localStorage.getItem("gameHistory")) || [];
-  let model;
   let currentStreak = 0;
   let streakType = ''; // 'win' or 'loss'
   let totalPredictions = 0;
   let correctPredictions = 0;
-  let autoReserveActive = true;
-  let reservePattern = null;
-  let consecutiveLosses = 0;
-  let roundsToSkip = 0;
-  let lastUpdatedTime = new Date();
-  let periodPatterns = {};
 
-  // ✅ Initialize AI Model with period features
-  async function initializeModel() {
-    try {
-      model = tf.sequential();
-      // Input shape now includes period features (12 total: 10 results + period parity + period segment)
-      model.add(tf.layers.dense({units: 64, inputShape: [12], activation: 'relu'}));
-      model.add(tf.layers.dropout({rate: 0.3}));
-      model.add(tf.layers.dense({units: 32, activation: 'relu'}));
-      model.add(tf.layers.dropout({rate: 0.2}));
-      model.add(tf.layers.dense({units: 16, activation: 'relu'}));
-      model.add(tf.layers.dense({units: 1, activation: 'sigmoid'}));
-      
-      const optimizer = tf.train.adam(0.001);
-      model.compile({
-        optimizer: optimizer,
-        loss: 'binaryCrossentropy',
-        metrics: ['accuracy']
-      });
-      
-      // Load model weights if available
-      const savedWeights = localStorage.getItem("modelWeights");
-      if (savedWeights) {
-        const weights = JSON.parse(savedWeights);
-        const weightTensors = weights.map(w => tf.tensor(w.data, w.shape));
-        model.setWeights(weightTensors);
-        weightTensors.forEach(t => t.dispose());
-      }
-      
-      // Load period patterns if available
-      const savedPatterns = localStorage.getItem("periodPatterns");
-      if (savedPatterns) {
-        periodPatterns = JSON.parse(savedPatterns);
-      }
-    } catch (error) {
-      console.error("Model initialization error:", error);
-    }
-  }
-
-  // ✅ Enhanced data preparation with period features
-  function prepareData(results, period) {
-    // Convert results to numerical values (1 for SMALL, 0 for BIG)
-    const numericalData = results.map(result => result.number <= 4 ? 1 : 0);
+  // ✅ New Period-Based Prediction Strategy
+  function predictBasedOnPeriod(periodNumber) {
+    // Convert period number to a string and get the last 4 digits
+    const periodStr = periodNumber.toString();
+    const lastFour = periodStr.slice(-4);
     
-    // Pad with zeros if we don't have enough history
-    while (numericalData.length < 10) {
-      numericalData.unshift(0);
-    }
+    // Calculate the sum of the last 4 digits
+    const digitSum = lastFour.split('').reduce((sum, digit) => sum + parseInt(digit), 0);
     
-    // Add period-based features
-    const periodNum = parseInt(period);
-    const periodParity = periodNum % 2; // 0 for even, 1 for odd
-    const periodSegment = periodNum % 5; // Which segment of 5 periods we're in
-    
-    // Add to feature vector
-    const features = numericalData.slice(0, 10);
-    features.push(periodParity);
-    features.push(periodSegment);
-    
-    return tf.tensor2d([features]);
-  }
-
-  // ✅ Analyze period number for patterns
-  function analyzePeriod(period) {
-    const periodNum = parseInt(period);
-    if (isNaN(periodNum)) return null;
-    
-    // Check for repeating endings
-    const lastDigit = periodNum % 10;
-    
-    // Check period parity
-    const isEven = periodNum % 2 === 0;
-    
-    // Check segment of 10
-    const segment10 = Math.floor((periodNum % 100) / 10);
-    
-    // Check segment of 5
-    const segment5 = periodNum % 5;
-    
-    // Check for specific patterns we've seen historically
-    let patternAnalysis = "";
-    const periodKey = periodNum.toString();
-    
-    if (periodPatterns[periodKey]) {
-      const pattern = periodPatterns[periodKey];
-      patternAnalysis = `Period ${periodKey} historically ${pattern.direction} (${pattern.count} times)`;
-    }
-    
-    // Update the period analysis display
-    const analysisText = [
-      `Last digit: ${lastDigit}`,
-      `Parity: ${isEven ? 'Even' : 'Odd'}`,
-      `Segment: ${segment5} (mod 5)`,
-      patternAnalysis
-    ].filter(Boolean).join(' | ');
-    
-    document.getElementById('period-analysis-text').textContent = analysisText;
-    document.getElementById('period-analysis').classList.remove('hidden');
-    
-    return {
-      lastDigit,
-      isEven,
-      segment10,
-      segment5,
-      pattern: patternAnalysis
-    };
-  }
-
-  // ✅ Enhanced prediction with period analysis
-  async function predictWithAI(results, period) {
-    if (!results || results.length === 0) return "BIG"; // Default fallback
-    
-    // Skip if in cool-down period
-    if (roundsToSkip > 0) {
-      roundsToSkip--;
-      document.getElementById('alert-banner').classList.remove('hidden');
-      document.getElementById('auto-reserve-status').textContent = "Paused (" + roundsToSkip + " rounds left)";
-      document.getElementById('auto-reserve-status').className = "text-sm font-bold text-yellow-500";
-      return "SKIPPING (" + roundsToSkip + " left)";
-    } else {
-      document.getElementById('alert-banner').classList.add('hidden');
-    }
-    
-    // Analyze the period number first
-    const periodAnalysis = analyzePeriod(period);
-    
-    // Convert results to numerical values for pattern detection
-    const numericalResults = results.map(r => r.number <= 4 ? 'S' : 'B');
-    const lastFive = numericalResults.slice(0, 5);
-    const lastTen = numericalResults.slice(0, 10);
-    
-    // Method 1: Check period-based patterns first
-    const periodPrediction = checkPeriodPatterns(lastFive, periodAnalysis);
-    if (periodPrediction) {
-      return periodPrediction;
-    }
-    
-    // Method 2: Check for obvious game patterns
-    const patternPrediction = checkCommonPatterns(lastFive, lastTen);
-    if (patternPrediction) {
-      return patternPrediction;
-    }
-    
-    // Method 3: Neural Network prediction with period features
-    try {
-      const nnPrediction = await predictWithNeuralNetwork(results, period);
-      if (nnPrediction) {
-        return nnPrediction;
-      }
-    } catch (error) {
-      console.error("Neural network prediction failed:", error);
-    }
-    
-    // Method 4: Statistical analysis fallback
-    return statisticalFallback(results);
-  }
-
-  // ✅ Check for period-based patterns
-  function checkPeriodPatterns(lastFive, periodAnalysis) {
-    if (!periodAnalysis) return null;
-    
-    // Pattern 1: Even/Odd period patterns
-    if (periodAnalysis.isEven) {
-      // In even periods, if last 3 were same, predict opposite
-      if (lastFive.length >= 3 && 
-          lastFive[0] === lastFive[1] && 
-          lastFive[1] === lastFive[2]) {
-        reservePattern = "Even Period Streak";
-        document.getElementById('pattern-info').textContent = "Pattern detected: Even period with streak";
-        document.getElementById('pattern-details').textContent = "Even period with 3 same results, predicting opposite";
-        return lastFive[0] === 'S' ? 'BIG' : 'SMALL';
-      }
-    } else {
-      // In odd periods, look for alternation continuation
-      if (lastFive.length >= 2 && lastFive[0] !== lastFive[1]) {
-        reservePattern = "Odd Period Alternation";
-        document.getElementById('pattern-info').textContent = "Pattern detected: Odd period alternation";
-        document.getElementById('pattern-details').textContent = "Odd period with alternating results, continuing pattern";
-        return lastFive[0] === 'S' ? 'BIG' : 'SMALL';
-      }
-    }
-    
-    // Pattern 2: Specific last digit patterns
-    if ([0, 5].includes(periodAnalysis.lastDigit)) {
-      // For periods ending in 0 or 5, look for continuation
-      reservePattern = "Ends with 0/5 Pattern";
-      document.getElementById('pattern-info').textContent = "Pattern detected: Period ends with 0/5";
-      document.getElementById('pattern-details').textContent = "Predicting continuation of current trend";
-      return lastFive[0] === 'S' ? 'SMALL' : 'BIG';
-    }
-    
-    // Pattern 3: Segment of 5 patterns
-    if (periodAnalysis.segment5 === 0) {
-      // First in segment of 5, look for reversal
-      reservePattern = "New Segment Pattern";
-      document.getElementById('pattern-info').textContent = "Pattern detected: New 5-period segment";
-      document.getElementById('pattern-details').textContent = "Predicting reversal at segment start";
-      return lastFive[0] === 'S' ? 'BIG' : 'SMALL';
-    }
-    
-    return null;
-  }
-
-  // ✅ Check for common game patterns
-  function checkCommonPatterns(lastFive, lastTen) {
-    // Pattern 1: Alternating small/big
-    let isAlternating = true;
-    for (let i = 1; i < lastFive.length; i++) {
-      if (lastFive[i] === lastFive[i-1]) {
-        isAlternating = false;
-        break;
-      }
-    }
-    if (isAlternating) {
-      reservePattern = "Alternating";
-      document.getElementById('pattern-info').textContent = "Pattern detected: Alternating results";
-      document.getElementById('pattern-details').textContent = "Last 5 results alternating between SMALL and BIG";
-      return lastFive[0] === 'S' ? 'BIG' : 'SMALL';
-    }
-    
-    // Pattern 2: Streak of same type (3+)
-    const smallStreak = lastFive.filter(r => r === 'S').length >= 3;
-    const bigStreak = lastFive.filter(r => r === 'B').length >= 3;
-    
-    if (smallStreak && !bigStreak) {
-      reservePattern = "Small Streak";
-      document.getElementById('pattern-info').textContent = "Pattern detected: SMALL streak";
-      document.getElementById('pattern-details').textContent = "3+ SMALL results in last 5";
-      return 'BIG';
-    }
-    if (bigStreak && !smallStreak) {
-      reservePattern = "Big Streak";
-      document.getElementById('pattern-info').textContent = "Pattern detected: BIG streak";
-      document.getElementById('pattern-details').textContent = "3+ BIG results in last 5";
+    // Apply our prediction algorithm
+    if (digitSum % 3 === 0) {
+      // If sum is divisible by 3, predict SMALL
+      document.getElementById('pattern-info').textContent = "Period analysis: Digit sum divisible by 3";
       return 'SMALL';
-    }
-    
-    // Pattern 3: 3-1-1 pattern (e.g., SMALL-SMALL-SMALL-BIG-SMALL)
-    if (lastFive.length >= 5) {
-      const pattern = lastFive.slice(0, 5).join('');
-      if (pattern === 'SSSBS' || pattern === 'BBBAB') {
-        reservePattern = "3-1-1 Sequence";
-        document.getElementById('pattern-info').textContent = "Pattern detected: 3-1-1 sequence";
-        document.getElementById('pattern-details').textContent = "Identified common 3-1-1 pattern";
-        return pattern[4] === 'S' ? 'BIG' : 'SMALL';
-      }
-    }
-    
-    return null;
-  }
-
-  // ✅ Neural Network prediction with period features
-  async function predictWithNeuralNetwork(results, period) {
-    if (results.length < 5) return null; // Not enough data
-    
-    try {
-      const inputData = prepareData(results, period);
-      const prediction = await model.predict(inputData).data();
-      const confidence = Math.abs(prediction[0] - 0.5) * 2; // Convert to 0-1 range
-      
-      // Only use NN prediction if confidence is high
-      if (confidence > 0.65) {
-        reservePattern = "AI Calculation";
-        document.getElementById('pattern-info').textContent = "Using AI prediction";
-        document.getElementById('pattern-details').textContent = `Confidence: ${(confidence*100).toFixed(1)}%`;
-        return prediction[0] > 0.5 ? 'SMALL' : 'BIG';
-      }
-      return null;
-    } catch (error) {
-      console.error("NN prediction error:", error);
-      return null;
-    }
-  }
-
-  // ✅ Statistical fallback method
-  function statisticalFallback(results) {
-    if (results.length < 3) return "BIG"; // Default fallback
-    
-    // Count recent SMALL/BIG results
-    const smallCount = results.slice(0, 5).filter(r => r.number <= 4).length;
-    const bigCount = 5 - smallCount;
-    
-    // Simple probability-based prediction
-    if (smallCount > bigCount) {
-      reservePattern = "Statistical (BIG expected)";
-      document.getElementById('pattern-info').textContent = "Using statistical analysis";
-      document.getElementById('pattern-details').textContent = `${smallCount} of last 5 were SMALL`;
+    } else if (digitSum % 5 === 0) {
+      // If sum is divisible by 5, predict BIG
+      document.getElementById('pattern-info').textContent = "Period analysis: Digit sum divisible by 5";
       return 'BIG';
-    } else {
-      reservePattern = "Statistical (SMALL expected)";
-      document.getElementById('pattern-info').textContent = "Using statistical analysis";
-      document.getElementById('pattern-details').textContent = `${bigCount} of last 5 were BIG`;
-      return 'SMALL';
-    }
-  }
-
-  // ✅ Update period patterns based on results
-  function updatePeriodPatterns(period, result) {
-    const periodKey = period.toString();
-    const resultType = result.number <= 4 ? 'SMALL' : 'BIG';
-    
-    if (!periodPatterns[periodKey]) {
-      periodPatterns[periodKey] = {
-        direction: resultType,
-        count: 1
-      };
-    } else {
-      if (periodPatterns[periodKey].direction === resultType) {
-        periodPatterns[periodKey].count++;
+    } else if (digitSum % 2 === 0) {
+      // If sum is even, look at the last digit
+      const lastDigit = parseInt(lastFour.slice(-1));
+      if (lastDigit <= 4) {
+        document.getElementById('pattern-info').textContent = "Period analysis: Even sum with last digit ≤4";
+        return 'SMALL';
       } else {
-        // If opposite result, reset count but keep direction
-        periodPatterns[periodKey].count = Math.max(1, periodPatterns[periodKey].count - 1);
+        document.getElementById('pattern-info').textContent = "Period analysis: Even sum with last digit >4";
+        return 'BIG';
+      }
+    } else {
+      // If sum is odd, use a different strategy
+      const middleTwo = parseInt(lastFour.slice(1, 3));
+      if (middleTwo < 50) {
+        document.getElementById('pattern-info').textContent = "Period analysis: Odd sum with middle digits <50";
+        return 'SMALL';
+      } else {
+        document.getElementById('pattern-info').textContent = "Period analysis: Odd sum with middle digits ≥50";
+        return 'BIG';
       }
     }
-    
-    // Save to localStorage
-    localStorage.setItem("periodPatterns", JSON.stringify(periodPatterns));
   }
 
   // ✅ Fetch Current Game Issue
@@ -550,19 +207,16 @@
     }
   }
 
-  // ✅ Update Results with AI Prediction
+  // ✅ Update Results with Period-Based Prediction
   async function updateResults() {
-    if (previousResults.length > 0 && latestPeriod) {
-      latestResult = await predictWithAI(previousResults, latestPeriod);
+    if (latestPeriod) {
+      latestResult = predictBasedOnPeriod(latestPeriod);
       document.getElementById('predicted-result').textContent = latestResult;
-      document.getElementById('next-prediction').textContent = `${latestResult} (${reservePattern})`;
       updateHistory();
-      lastUpdatedTime = new Date();
-      document.getElementById('last-updated').textContent = lastUpdatedTime.toLocaleTimeString();
     }
   }
 
-  // ✅ Update History with trophy shaking effect for WON and lost shaking effect for LOST
+  // ✅ Update History with trophy shaking effect for WON
   function updateHistory() {
     const historyContainer = document.getElementById('history-list');
     historyContainer.innerHTML = '';
@@ -571,8 +225,7 @@
       period: latestPeriod.toString().slice(-4),
       prediction: latestResult,
       status: "PENDING",
-      actualResult: null,
-      patternUsed: reservePattern
+      actualResult: null
     };
 
     if (!storedHistory.some(entry => entry.period === newHistoryEntry.period)) {
@@ -581,8 +234,7 @@
 
     // Check if we need to update the status of the previous prediction
     const prevPeriod = storedHistory[1];
-    let shouldAnimateWin = false;
-    let shouldAnimateLost = false;
+    let shouldAnimate = false;
     
     if (prevPeriod && prevPeriod.status === "PENDING") {
       // Get the actual result from the previous period
@@ -592,25 +244,11 @@
       prevPeriod.actualResult = actualResult;
       prevPeriod.status = prevPeriod.prediction === actualResult ? "WON" : "LOST";
       
-      // Update period patterns
-      if (previousResults[0]) {
-        updatePeriodPatterns(prevPeriod.period, previousResults[0]);
-      }
-      
       // Update accuracy metrics
       if (prevPeriod.status === "WON") {
         correctPredictions++;
-        consecutiveLosses = 0; // Reset consecutive losses counter
-      } else {
-        consecutiveLosses++; // Increment consecutive losses counter
       }
       totalPredictions++;
-      
-      // Check for 3 consecutive losses
-      if (consecutiveLosses >= 3) {
-        roundsToSkip = 10;
-        document.getElementById('alert-banner').classList.remove('hidden');
-      }
       
       // Update streak counter
       if (prevPeriod.status === "WON") {
@@ -620,7 +258,6 @@
           currentStreak = 1;
           streakType = 'win';
         }
-        shouldAnimateWin = true;
       } else {
         if (streakType === 'loss') {
           currentStreak++;
@@ -628,70 +265,42 @@
           currentStreak = 1;
           streakType = 'loss';
         }
-        shouldAnimateLost = true;
       }
       
-      // Update the model with the new data point (online learning)
-      updateModelWithResult(prevPeriod.prediction === 'SMALL' ? 1 : 0, 
-                          actualResult === 'SMALL' ? 1 : 0);
+      shouldAnimate = prevPeriod.status === "WON";
     }
 
-    // Update all displays
-    updateDisplays();
-    
-    // Save to localStorage
-    localStorage.setItem("gameHistory", JSON.stringify(storedHistory.slice(0, 10)));
-  }
-
-  // ✅ Update all display elements
-  function updateDisplays() {
     // Update accuracy display
     const accuracy = totalPredictions > 0 ? (correctPredictions / totalPredictions) * 100 : 0;
     document.getElementById('accuracy-value').textContent = accuracy.toFixed(2) + '%';
     document.getElementById('accuracy-fill').style.width = accuracy + '%';
-    document.getElementById('prediction-count').textContent = totalPredictions;
     
-    // Update auto reserve status
-    if (roundsToSkip === 0) {
-      document.getElementById('auto-reserve-status').textContent = autoReserveActive ? "Active" : "Inactive";
-      document.getElementById('auto-reserve-status').className = autoReserveActive ? 
-        "text-sm font-bold text-green-500" : "text-sm font-bold text-red-500";
-    }
-
     // Update streak display
-    document.getElementById('current-streak').textContent = currentStreak;
-    const streakTypeElement = document.getElementById('streak-type');
-    streakTypeElement.textContent = streakType === 'win' ? 'WINS' : 'LOSSES';
-    streakTypeElement.className = streakType === 'win' ? 'text-green-500' : 'text-red-500';
+    document.getElementById('current-streak').textContent = currentStreak + (streakType === 'win' ? 'W' : 'L');
+    document.getElementById('current-streak').className = streakType === 'win' ? 
+      'text-xl font-bold text-green-500' : 'text-xl font-bold text-red-500';
 
-    // Update history list
-    const historyContainer = document.getElementById('history-list');
-    historyContainer.innerHTML = '';
-    
     let winCount = 0, lossCount = 0;
-    
     storedHistory.slice(0, 10).forEach((entry, index) => {
       const box = document.createElement('div');
       box.className = `history-box text-center p-3 rounded-lg mb-2 ${
-        entry.status === 'WON' ? 'bg-green-50 border-l-4 border-green-500' : 
-        entry.status === 'LOST' ? 'bg-red-50 border-l-4 border-red-500' : 
-        'bg-yellow-50 border-l-4 border-yellow-500'
+        entry.status === 'WON' ? 'bg-green-100 border-l-4 border-green-500' : 
+        entry.status === 'LOST' ? 'bg-red-100 border-l-4 border-red-500' : 
+        'bg-yellow-100 border-l-4 border-yellow-500'
       }`;
 
-      // Add trophy icon with shake effect for WON entries and cross icon with shake for LOST
+      // Add trophy icon with shake effect for WON entries
       const statusIcon = entry.status === 'WON' ? 
-        `<span class="trophy-shake"><i class="fas fa-trophy text-yellow-500"></i></span>` :
-        entry.status === 'LOST' ? '<span class="lost-shake"><i class="fas fa-times-circle text-red-500"></i></span>' : 
-        '<i class="fas fa-clock text-yellow-500"></i>';
+        `<span class="trophy-shake"><i class="fas fa-trophy"></i></span>` :
+        entry.status === 'LOST' ? '<i class="fas fa-times-circle"></i>' : 
+        '<i class="fas fa-clock"></i>';
 
+      // Alternative display for actual result
       const resultDisplay = entry.actualResult ? 
-        `<div class="text-xs mt-1 text-gray-600">
+        `<div class="text-xs mt-1">
           <span class="font-semibold">Actual:</span> 
-          <span class="${entry.actualResult === 'SMALL' ? 'text-blue-600 font-bold' : 'text-purple-600 font-bold'}">
+          <span class="${entry.actualResult === 'SMALL' ? 'text-blue-900' : 'text-purple-600'}">
             ${entry.actualResult}
-          </span>
-          <span class="pattern-badge ${entry.patternUsed ? 'bg-gray-100 text-gray-700' : ''}">
-            ${entry.patternUsed || ''}
           </span>
         </div>` : '';
 
@@ -709,8 +318,8 @@
               'text-yellow-600 font-bold'}">
               ${statusIcon} ${entry.status}
             </p>
+            ${resultDisplay}
           </div>
-          ${resultDisplay}
         </div>
       `;
 
@@ -720,13 +329,15 @@
       else if (entry.status === "LOST") lossCount++;
     });
 
+    localStorage.setItem("gameHistory", JSON.stringify(storedHistory.slice(0, 10)));
+
     document.getElementById('won-count').textContent = winCount;
     document.getElementById('lost-count').textContent = lossCount;
     document.getElementById('won-percentage').textContent = 
       (winCount + lossCount > 0) ? ((winCount / (winCount + lossCount)) * 100).toFixed(2) + "%" : "0%";
 
-    // Trigger animation effects
-    if (shouldAnimateWin) {
+    // Trigger trophy animation for wins
+    if (shouldAnimate) {
       const trophyElements = document.querySelectorAll('.trophy-shake');
       if (trophyElements.length > 0) {
         trophyElements[0].classList.add('animate-shake');
@@ -735,72 +346,25 @@
         }, 1000);
       }
     }
-    if (shouldAnimateLost) {
-      const lostElements = document.querySelectorAll('.lost-shake');
-      if (lostElements.length > 0) {
-        lostElements[0].classList.add('animate-shake');
-        setTimeout(() => {
-          lostElements[0].classList.remove('animate-shake');
-        }, 1000);
-      }
-    }
-  }
-
-  // ✅ Update model with new result (online learning)
-  async function updateModelWithResult(prediction, actual) {
-    try {
-      // Convert to tensor
-      const x = tf.tensor2d([[prediction]]);
-      const y = tf.tensor2d([[actual]]);
-      
-      // Train for one epoch
-      await model.fit(x, y, {
-        epochs: 1,
-        batchSize: 1,
-        verbose: 0
-      });
-      
-      // Save updated weights
-      const weights = await model.getWeights();
-      const weightData = weights.map(w => {
-        return {data: Array.from(w.dataSync()), shape: w.shape};
-      });
-      localStorage.setItem("modelWeights", JSON.stringify(weightData));
-      
-      // Clean up
-      x.dispose();
-      y.dispose();
-      tf.dispose(weights);
-    } catch (error) {
-      console.error("Model update error:", error);
-    }
   }
 
   // Initialize and start the process
-  (async function init() {
-    await initializeModel();
+  (function init() {
     // Load accuracy data from localStorage if available
     const savedAccuracy = JSON.parse(localStorage.getItem("accuracyData")) || {total: 0, correct: 0};
     totalPredictions = savedAccuracy.total;
     correctPredictions = savedAccuracy.correct;
     
-    // Load consecutive losses count
-    consecutiveLosses = parseInt(localStorage.getItem("consecutiveLosses")) || 0;
-    
-    // Set initial update time
-    document.getElementById('last-updated').textContent = lastUpdatedTime.toLocaleTimeString();
-    
     // ✅ Auto-Fetch Every 5 Seconds
-    setInterval(fetchCurrentGameIssue, 1000);
+    setInterval(fetchCurrentGameIssue, 5000);
     fetchCurrentGameIssue();
     
-    // Save data before unload
+    // Save accuracy data before unload
     window.addEventListener('beforeunload', () => {
       localStorage.setItem("accuracyData", JSON.stringify({
         total: totalPredictions,
         correct: correctPredictions
       }));
-      //localStorage.setItem("consecutiveLosses", consecutiveLosses.toString());
     });
   })();
   </script>
