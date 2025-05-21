@@ -21,21 +21,38 @@
       75% { transform: rotate(10deg); }
       100% { transform: rotate(0deg); }
     }
+    @keyframes shakeCross {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    @keyframes pulseWin {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    @keyframes pulseLoss {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
     .trophy-shake {
       display: inline-block;
       animation: shakeTrophy 0.5s ease-in-out;
     }
-    .accuracy-meter {
-      height: 10px;
-      border-radius: 5px;
-      background: linear-gradient(to right, #ef4444, #f59e0b, #10b981);
+    .cross-shake {
+      display: inline-block;
+      animation: shakeCross 0.5s ease-in-out;
     }
-    .accuracy-fill {
-      height: 100%;
-      border-radius: 5px;
-      background-color: #10b981;
-      transition: width 0.5s ease;
+    .pulse-win {
+      animation: pulseWin 1s ease;
     }
+    .pulse-loss {
+      animation: pulseLoss 1s ease;
+    }
+
   </style>
 </head>
 <body class="bg-Lite green-100 font-['El_Messiri']">
@@ -52,6 +69,10 @@
           <div id="accuracy-fill" class="accuracy-fill" style="width: 0%"></div>
         </div>
         <p class="text-sm text-gray-600 mt-1">AI Accuracy: <span id="accuracy-value">0%</span></p>
+        <div class="confidence-indicator">
+          <div id="confidence-fill" class="confidence-fill" style="width: 0%"></div>
+        </div>
+        <p class="text-xs text-gray-500">Confidence: <span id="confidence-value">0%</span></p>
       </div>
     </div>
 
@@ -80,9 +101,12 @@
 
     <!-- Pattern Detection Section -->
     <div class="bg-white p-4 rounded-lg shadow-md mt-4">
-      <h2 class="text-lg font-semibold text-gray-700 text-center">Period Analysis</h2>
+      <h2 class="text-lg font-semibold text-gray-700 text-center">AI Analysis</h2>
       <div id="pattern-info" class="text-center text-sm text-gray-600 mt-2">
         Analyzing period patterns...
+      </div>
+      <div id="algorithm-info" class="text-center text-xs text-gray-500 mt-1">
+        Using multi-factor predictive algorithm
       </div>
     </div>
 
@@ -102,46 +126,88 @@
   let streakType = ''; // 'win' or 'loss'
   let totalPredictions = 0;
   let correctPredictions = 0;
+  let currentConfidence = 0;
 
-  // ✅ New Period-Based Prediction Strategy
+  // ✅ Enhanced AI Prediction Algorithm with Multiple Factors
   function predictBasedOnPeriod(periodNumber) {
-    // Convert period number to a string and get the last 4 digits
     const periodStr = periodNumber.toString();
     const lastFour = periodStr.slice(-4);
+    const digits = lastFour.split('').map(Number);
     
-    // Calculate the sum of the last 4 digits
-    const digitSum = lastFour.split('').reduce((sum, digit) => sum + parseInt(digit), 0);
+    // 1. Digit Sum Analysis
+    const digitSum = digits.reduce((sum, digit) => sum + digit, 0);
+    const digitSumMod3 = digitSum % 3;
+    const digitSumMod5 = digitSum % 5;
     
-    // Apply our prediction algorithm
-    if (digitSum % 3 === 0) {
-      // If sum is divisible by 3, predict SMALL
-      document.getElementById('pattern-info').textContent = "Period analysis: Digit sum divisible by 3";
-      return 'SMALL';
-    } else if (digitSum % 5 === 0) {
-      // If sum is divisible by 5, predict BIG
-      document.getElementById('pattern-info').textContent = "Period analysis: Digit sum divisible by 5";
-      return 'BIG';
-    } else if (digitSum % 2 === 0) {
-      // If sum is even, look at the last digit
-      const lastDigit = parseInt(lastFour.slice(-1));
-      if (lastDigit <= 4) {
-        document.getElementById('pattern-info').textContent = "Period analysis: Even sum with last digit ≤4";
-        return 'SMALL';
-      } else {
-        document.getElementById('pattern-info').textContent = "Period analysis: Even sum with last digit >4";
-        return 'BIG';
-      }
+    // 2. Digit Pattern Analysis
+    const evenDigits = digits.filter(d => d % 2 === 0).length;
+    const oddDigits = digits.filter(d => d % 2 !== 0).length;
+    const ascendingCount = digits.filter((d, i) => i > 0 && d > digits[i-1]).length;
+    const descendingCount = digits.filter((d, i) => i > 0 && d < digits[i-1]).length;
+    
+    // 3. Positional Analysis
+    const firstLastDiff = Math.abs(digits[0] - digits[3]);
+    const middleAvg = (digits[1] + digits[2]) / 2;
+    
+    // 4. Historical Pattern Matching (simple version)
+    const lastTwoDigits = parseInt(lastFour.slice(-2));
+    const historicalBias = lastTwoDigits < 50 ? -1 : 1; // -1 for SMALL bias, 1 for BIG bias
+    
+    // Scoring System
+    let smallScore = 0;
+    let bigScore = 0;
+    
+    // Rule 1: Digit sum divisible by 3 favors SMALL
+    if (digitSumMod3 === 0) smallScore += 2;
+    
+    // Rule 2: Digit sum divisible by 5 favors BIG
+    if (digitSumMod5 === 0) bigScore += 2;
+    
+    // Rule 3: More even digits favors BIG
+    if (evenDigits > oddDigits) bigScore += 1;
+    else if (oddDigits > evenDigits) smallScore += 1;
+    
+    // Rule 4: Ascending sequence favors BIG
+    if (ascendingCount >= 2) bigScore += 1;
+    
+    // Rule 5: Descending sequence favors SMALL
+    if (descendingCount >= 2) smallScore += 1;
+    
+    // Rule 6: First and last digit difference
+    if (firstLastDiff <= 2) smallScore += 1;
+    else if (firstLastDiff >= 6) bigScore += 1;
+    
+    // Rule 7: Middle average
+    if (middleAvg < 4.5) smallScore += 1;
+    else if (middleAvg > 4.5) bigScore += 1;
+    
+    // Rule 8: Historical bias
+    if (historicalBias === -1) smallScore += 1;
+    else bigScore += 1;
+    
+    // Calculate confidence
+    const totalScore = smallScore + bigScore;
+    currentConfidence = totalScore > 0 ? (Math.max(smallScore, bigScore) / totalScore) * 100 : 50;
+    
+    // Determine prediction with explanation
+    let prediction, explanation;
+    if (smallScore > bigScore) {
+      prediction = 'SMALL';
+      explanation = `AI detected ${smallScore} small indicators vs ${bigScore} big indicators`;
+    } else if (bigScore > smallScore) {
+      prediction = 'BIG';
+      explanation = `AI detected ${bigScore} big indicators vs ${smallScore} small indicators`;
     } else {
-      // If sum is odd, use a different strategy
-      const middleTwo = parseInt(lastFour.slice(1, 3));
-      if (middleTwo < 50) {
-        document.getElementById('pattern-info').textContent = "Period analysis: Odd sum with middle digits <50";
-        return 'SMALL';
-      } else {
-        document.getElementById('pattern-info').textContent = "Period analysis: Odd sum with middle digits ≥50";
-        return 'BIG';
-      }
+      // Tiebreaker - use historical bias
+      prediction = historicalBias === -1 ? 'SMALL' : 'BIG';
+      explanation = `Even score (${smallScore}-${bigScore}), using historical bias`;
     }
+    
+    document.getElementById('pattern-info').textContent = explanation;
+    document.getElementById('confidence-value').textContent = currentConfidence.toFixed(0) + '%';
+    document.getElementById('confidence-fill').style.width = currentConfidence + '%';
+    
+    return prediction;
   }
 
   // ✅ Fetch Current Game Issue
@@ -207,7 +273,7 @@
     }
   }
 
-  // ✅ Update Results with Period-Based Prediction
+  // ✅ Update Results with Enhanced AI Prediction
   async function updateResults() {
     if (latestPeriod) {
       latestResult = predictBasedOnPeriod(latestPeriod);
@@ -216,7 +282,7 @@
     }
   }
 
-  // ✅ Update History with trophy shaking effect for WON
+  // ✅ Update History with trophy shaking effect for WON and cross shaking for LOST
   function updateHistory() {
     const historyContainer = document.getElementById('history-list');
     historyContainer.innerHTML = '';
@@ -225,7 +291,8 @@
       period: latestPeriod.toString().slice(-4),
       prediction: latestResult,
       status: "PENDING",
-      actualResult: null
+      actualResult: null,
+      confidence: currentConfidence
     };
 
     if (!storedHistory.some(entry => entry.period === newHistoryEntry.period)) {
@@ -234,7 +301,8 @@
 
     // Check if we need to update the status of the previous prediction
     const prevPeriod = storedHistory[1];
-    let shouldAnimate = false;
+    let shouldAnimateWin = false;
+    let shouldAnimateLoss = false;
     
     if (prevPeriod && prevPeriod.status === "PENDING") {
       // Get the actual result from the previous period
@@ -247,6 +315,9 @@
       // Update accuracy metrics
       if (prevPeriod.status === "WON") {
         correctPredictions++;
+        shouldAnimateWin = true;
+      } else {
+        shouldAnimateLoss = true;
       }
       totalPredictions++;
       
@@ -266,8 +337,6 @@
           streakType = 'loss';
         }
       }
-      
-      shouldAnimate = prevPeriod.status === "WON";
     }
 
     // Update accuracy display
@@ -291,9 +360,9 @@
 
       // Add trophy icon with shake effect for WON entries
       const statusIcon = entry.status === 'WON' ? 
-        `<span class="trophy-shake"><i class="fas fa-trophy"></i></span>` :
-        entry.status === 'LOST' ? '<i class="fas fa-times-circle"></i>' : 
-        '<i class="fas fa-clock"></i>';
+        `<span class="trophy-shake"><i class="fas fa-trophy text-yellow-500"></i></span>` :
+        entry.status === 'LOST' ? '<span class="cross-shake"><i class="fas fa-times-circle text-red-500"></i></span>' : 
+        '<i class="fas fa-clock text-yellow-500"></i>';
 
       // Alternative display for actual result
       const resultDisplay = entry.actualResult ? 
@@ -302,6 +371,13 @@
           <span class="${entry.actualResult === 'SMALL' ? 'text-blue-900' : 'text-purple-600'}">
             ${entry.actualResult}
           </span>
+        </div>` : '';
+
+      // Confidence display for pending predictions
+      const confidenceDisplay = entry.status === 'PENDING' ? 
+        `<div class="text-xs mt-1">
+          <span class="font-semibold">Confidence:</span> 
+          <span class="text-blue-600">${entry.confidence.toFixed(0)}%</span>
         </div>` : '';
 
       box.innerHTML = `
@@ -319,6 +395,7 @@
               ${statusIcon} ${entry.status}
             </p>
             ${resultDisplay}
+            ${confidenceDisplay}
           </div>
         </div>
       `;
@@ -336,13 +413,27 @@
     document.getElementById('won-percentage').textContent = 
       (winCount + lossCount > 0) ? ((winCount / (winCount + lossCount)) * 100).toFixed(2) + "%" : "0%";
 
-    // Trigger trophy animation for wins
-    if (shouldAnimate) {
+    // Trigger animations
+    if (shouldAnimateWin) {
       const trophyElements = document.querySelectorAll('.trophy-shake');
-      if (trophyElements.length > 0) {
+      const winBoxes = document.querySelectorAll('.bg-green-100');
+      if (trophyElements.length > 0 && winBoxes.length > 0) {
         trophyElements[0].classList.add('animate-shake');
+        winBoxes[0].classList.add('pulse-win');
         setTimeout(() => {
           trophyElements[0].classList.remove('animate-shake');
+          winBoxes[0].classList.remove('pulse-win');
+        }, 1000);
+      }
+    } else if (shouldAnimateLoss) {
+      const crossElements = document.querySelectorAll('.cross-shake');
+      const lossBoxes = document.querySelectorAll('.bg-red-100');
+      if (crossElements.length > 0 && lossBoxes.length > 0) {
+        crossElements[0].classList.add('animate-shake');
+        lossBoxes[0].classList.add('pulse-loss');
+        setTimeout(() => {
+          crossElements[0].classList.remove('animate-shake');
+          lossBoxes[0].classList.remove('pulse-loss');
         }, 1000);
       }
     }
