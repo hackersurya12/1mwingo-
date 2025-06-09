@@ -10,7 +10,7 @@
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     /* Enhanced Animation Styles */
@@ -87,126 +87,179 @@
       from { transform: translateX(-20px); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
+    .digit-display {
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .calculation-step {
+      background-color: rgba(59, 130, 246, 0.1);
+      border-left: 3px solid #3b82f6;
+      padding: 8px;
+      margin: 4px 0;
+      border-radius: 0 4px 4px 0;
+    }
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .gradient-text {
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
   </style>
 </head>
-<body class="bg-gray-50 font-['El_Messiri']">
+<body class="bg-gray-50 font-['Inter'] min-h-screen">
   
-  <div class="container mx-auto p-4 max-w-md">
+  <div class="container mx-auto px-4 py-6 max-w-4xl">
     <!-- Header -->
-    <div class="text-center mb-6">
-      <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600">TKS AI PRO</h1>
-      <p class="text-sm text-gray-500 mt-1">Advanced Predictive Analytics</p>
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold gradient-text bg-gradient-to-r from-blue-600 to-purple-600">TKS AI PRO</h1>
+      <p class="text-sm text-gray-500 mt-2">Advanced Predictive Analytics Engine</p>
     </div>
 
-    <!-- Prediction Card -->
-    <div class="bg-white p-5 rounded-xl shadow-lg mb-6 border border-gray-200 slide-in">
-      <div class="flex justify-between items-center mb-4">
-        <div>
-          <p class="text-sm font-semibold text-gray-500"><i class="fas fa-calendar-alt mr-1"></i> Current Period</p>
-          <p id="period-number" class="text-xl font-bold text-gray-800">Loading...</p>
-        </div>
-        
-        <!-- Confidence Ring -->
-        <div class="relative w-16 h-16">
-          <svg class="progress-ring w-16 h-16" width="64" height="64">
-            <circle class="progress-ring-circle" stroke="#e5e7eb" stroke-width="6" fill="transparent" r="45" cx="32" cy="32"/>
-            <circle id="confidence-ring" class="progress-ring-circle" stroke="#3b82f6" stroke-width="6" fill="transparent" r="45" cx="32" cy="32"/>
-          </svg>
-          <div class="absolute inset-0 flex items-center justify-center">
-            <span id="confidence-value" class="text-sm font-bold text-gray-700">0%</span>
+    <!-- Main Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left Column -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Prediction Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden slide-in">
+          <div class="p-5">
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider"><i class="fas fa-calendar-alt mr-1.5"></i> Current Period</p>
+                <p id="period-number" class="text-2xl font-bold text-gray-800 digit-display mt-1">Loading...</p>
+              </div>
+              
+              <!-- Confidence Ring -->
+              <div class="relative w-20 h-20">
+                <svg class="progress-ring w-20 h-20" width="80" height="80">
+                  <circle class="progress-ring-circle" stroke="#e5e7eb" stroke-width="6" fill="transparent" r="35" cx="40" cy="40"/>
+                  <circle id="confidence-ring" class="progress-ring-circle" stroke="#3b82f6" stroke-width="6" fill="transparent" r="35" cx="40" cy="40"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span id="confidence-value" class="text-lg font-bold text-gray-700">0%</span>
+                </div>
+              </div>
+              
+              <div>
+                <p class="text-xs font-medium text-gray-500 uppercase tracking-wider"><i class="fas fa-chart-line mr-1.5"></i> Prediction</p>
+                <p id="predicted-result" class="text-2xl font-bold result-glow mt-1">...</p>
+              </div>
+            </div>
+            
+            <!-- Calculation Steps -->
+            <div id="calculation-steps" class="hidden mt-4 text-xs">
+              <div class="font-semibold mb-2 text-gray-700 flex items-center">
+                <i class="fas fa-calculator mr-2"></i> Calculation Steps:
+              </div>
+              <div id="steps-container" class="space-y-2"></div>
+            </div>
+            
+            <div class="mt-6 space-y-4">
+              <div>
+                <div class="flex justify-between text-xs text-gray-500 mb-1.5">
+                  <span class="font-medium">AI Accuracy</span>
+                  <span id="accuracy-value">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div id="accuracy-fill" class="bg-green-500 h-2 rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+              
+              <div>
+                <div class="flex justify-between text-xs text-gray-500 mb-1.5">
+                  <span class="font-medium">Confidence Level</span>
+                  <span id="confidence-text">Analyzing...</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                  <div id="confidence-fill" class="bg-blue-500 h-2 rounded-full" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+            
+            
           </div>
         </div>
-        
-        <div>
-          <p class="text-sm font-semibold text-gray-500"><i class="fas fa-chart-line mr-1"></i> Prediction</p>
-          <p id="predicted-result" class="text-xl font-bold result-glow">...</p>
-        </div>
-      </div>
-      
-      <div class="mt-4">
-        <div class="flex justify-between text-xs text-gray-500 mb-1">
-          <span>AI Accuracy</span>
-          <span id="accuracy-value">0%</span>
-        </div>
-        <div class="accuracy-meter">
-          <div id="accuracy-fill" class="accuracy-fill" style="width: 0%"></div>
-        </div>
-        
-        <div class="flex justify-between text-xs text-gray-500 mt-3 mb-1">
-          <span>Confidence Level</span>
-          <span id="confidence-text">Analyzing...</span>
-        </div>
-        <div class="confidence-indicator">
-          <div id="confidence-fill" class="confidence-fill" style="width: 0%"></div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-2 gap-4 mb-6">
-      <div class="bg-white p-4 rounded-xl shadow-md text-center border border-green-100">
-        <div class="text-green-500 mb-1"><i class="fas fa-trophy text-xl"></i></div>
-        <p class="text-gray-600 text-sm">Win Count</p>
-        <p id="won-count" class="text-2xl font-bold text-green-600">0</p>
-      </div>
-      
-      <div class="bg-white p-4 rounded-xl shadow-md text-center border border-red-100">
-        <div class="text-red-500 mb-1"><i class="fas fa-times-circle text-xl"></i></div>
-        <p class="text-gray-600 text-sm">Loss Count</p>
-        <p id="lost-count" class="text-2xl font-bold text-red-600">0</p>
-      </div>
-      
-      <div class="bg-white p-4 rounded-xl shadow-md text-center border border-blue-100">
-        <div class="text-blue-500 mb-1"><i class="fas fa-percentage text-xl"></i></div>
-        <p class="text-gray-600 text-sm">Win Rate</p>
-        <p id="won-percentage" class="text-2xl font-bold text-blue-600">0%</p>
-      </div>
-      
-      <div class="bg-white p-4 rounded-xl shadow-md text-center border border-yellow-100">
-        <div class="text-yellow-500 mb-1"><i class="fas fa-bolt text-xl"></i></div>
-        <p class="text-gray-600 text-sm">Streak</p>
-        <p id="current-streak" class="text-2xl font-bold text-yellow-600">0</p>
-      </div>
-    </div>
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 text-center">
+            <div class="text-green-500 mb-2"><i class="fas fa-trophy text-2xl"></i></div>
+            <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Win Count</p>
+            <p id="won-count" class="text-2xl font-bold text-gray-800 mt-1">0</p>
+          </div>
+          
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 text-center">
+            <div class="text-red-500 mb-2"><i class="fas fa-times-circle text-2xl"></i></div>
+            <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Loss Count</p>
+            <p id="lost-count" class="text-2xl font-bold text-gray-800 mt-1">0</p>
+          </div>
+          
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 text-center">
+            <div class="text-blue-500 mb-2"><i class="fas fa-percentage text-2xl"></i></div>
+            <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Win Rate</p>
+            <p id="won-percentage" class="text-2xl font-bold text-gray-800 mt-1">0%</p>
+          </div>
+          
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 text-center">
+            <div class="text-yellow-500 mb-2"><i class="fas fa-bolt text-2xl"></i></div>
+            <p class="text-gray-600 text-xs font-medium uppercase tracking-wider">Streak</p>
+            <p id="current-streak" class="text-2xl font-bold text-gray-800 mt-1">0</p>
+          </div>
+        </div>
 
-    <!-- AI Analysis Section -->
-    <div class="bg-white p-5 rounded-xl shadow-lg mb-6 border border-gray-200">
-      <div class="flex items-center mb-3">
-        <div class="bg-blue-100 p-2 rounded-full mr-3">
-          <i class="fas fa-brain text-blue-600"></i>
+        <!-- AI Analysis Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <div class="flex items-center mb-4">
+            <div class="bg-blue-100 p-2 rounded-lg mr-3">
+              <i class="fas fa-brain text-blue-600 text-xl"></i>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-800">AI Analysis</h2>
+          </div>
+          
+          <div id="pattern-info" class="text-sm text-gray-600 bg-blue-50 p-4 rounded-lg mb-3">
+            <div class="blink-animation text-center py-2 text-gray-500">
+              <i class="fas fa-cog fa-spin mr-2"></i> Analyzing period patterns...
+            </div>
+          </div>
+          
+          <div id="algorithm-details" class="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+            <div class="flex items-center">
+              <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+              <span>Using enhanced weighted exponential analysis v4.1</span>
+            </div>
+          </div>
         </div>
-        <h2 class="text-lg font-semibold text-gray-700">AI Analysis</h2>
       </div>
-      
-      <div id="pattern-info" class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg mb-2">
-        <div class="blink-animation text-center py-2">
-          <i class="fas fa-cog fa-spin mr-2"></i> Analyzing period patterns...
-        </div>
-      </div>
-      
-      <div id="algorithm-details" class="text-xs text-gray-500">
-        <div class="flex items-center">
-          <i class="fas fa-info-circle mr-1"></i>
-          <span>Using enhanced multi-algorithmic analysis v3.2</span>
-        </div>
-      </div>
-    </div>
 
-    <!-- History Section -->
-    <div class="bg-white p-5 rounded-xl shadow-lg border border-gray-200">
-      <div class="flex items-center mb-3">
-        <div class="bg-purple-100 p-2 rounded-full mr-3">
-          <i class="fas fa-history text-purple-600"></i>
+      <!-- Right Column -->
+      <div class="lg:col-span-1">
+        <!-- History Section -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 h-full">
+          <div class="flex items-center mb-4">
+            <div class="bg-purple-100 p-2 rounded-lg mr-3">
+              <i class="fas fa-history text-purple-600 text-xl"></i>
+            </div>
+            <h2 class="text-lg font-semibold text-gray-800">Prediction History</h2>
+          </div>
+          
+          <div id="history-list" class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+            <!-- History items will be inserted here -->
+            <div class="text-center py-8 text-gray-400">
+              <i class="fas fa-history text-2xl mb-2"></i>
+              <p>No prediction history yet</p>
+            </div>
+          </div>
+          
+          <div class="text-center mt-4 pt-4 border-t border-gray-100">
+            <button id="refresh-btn" class="text-sm bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg text-gray-600 transition flex items-center mx-auto">
+              <i class="fas fa-sync-alt mr-2"></i> Refresh Data
+            </button>
+          </div>
         </div>
-        <h2 class="text-lg font-semibold text-gray-700">Prediction History</h2>
-      </div>
-      
-      <div id="history-list" class="space-y-3 mt-3"></div>
-      
-      <div class="text-center mt-4">
-        <button id="refresh-btn" class="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-gray-600 transition">
-          <i class="fas fa-sync-alt mr-1"></i> Refresh Data
-        </button>
       </div>
     </div>
   </div>
@@ -222,172 +275,96 @@
   let correctPredictions = 0;
   let currentConfidence = 0;
   let patternHistory = [];
-  let algorithmWeights = {
-    digitSum: 0.18,
-    digitPattern: 0.22,
-    positional: 0.15,
-    historical: 0.12,
-    sequence: 0.18,
-    statistical: 0.15
-  };
+  let calculationSteps = [];
 
-  // Enhanced AI Prediction Algorithm with Multiple Analysis Layers
-  function predictBasedOnPeriod(periodNumber) {
-    const periodStr = periodNumber.toString();
-    const lastFour = periodStr.slice(-4);
-    const digits = lastFour.split('').map(Number);
+  // Enhanced Prediction Algorithm with Weighted Exponential Calculation
+  function calculatePrediction(periodNumber) {
+    calculationSteps = []; // Reset steps for new calculation
     
-    // 1. Digit Sum Analysis (Enhanced)
-    const digitSum = digits.reduce((sum, digit) => sum + digit, 0);
-    const digitSumMod3 = digitSum % 3;
-    const digitSumMod5 = digitSum % 5;
-    const digitSumMod7 = digitSum % 7;
-    
-    // 2. Enhanced Digit Pattern Analysis
-    const evenDigits = digits.filter(d => d % 2 === 0).length;
-    const oddDigits = digits.filter(d => d % 2 !== 0).length;
-    const highDigits = digits.filter(d => d >= 5).length;
-    const lowDigits = digits.filter(d => d < 5).length;
-    
-    // 3. Advanced Positional Analysis
-    const firstLastDiff = Math.abs(digits[0] - digits[3]);
-    const middleAvg = (digits[1] + digits[2]) / 2;
-    const positionSum = digits[0] + digits[3];
-    const middleDiff = Math.abs(digits[1] - digits[2]);
-    
-    // 4. Sequence Pattern Detection
-    const isAscending = digits.every((d, i) => i === 0 || d >= digits[i-1]);
-    const isDescending = digits.every((d, i) => i === 0 || d <= digits[i-1]);
-    const hasPair = digits.some((d, i) => i > 0 && d === digits[i-1]);
-    const hasTriple = digits.some((d, i) => i > 1 && d === digits[i-1] && d === digits[i-2]);
-    
-    // 5. Statistical Analysis
-    const mean = digits.reduce((a, b) => a + b, 0) / digits.length;
-    const variance = digits.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / digits.length;
-    const stdDev = Math.sqrt(variance);
-    
-    // 6. Historical Pattern Analysis (Enhanced)
-    const lastTwoDigits = parseInt(lastFour.slice(-2));
-    const historicalBias = lastTwoDigits < 50 ? -1 : 1;
-    
-    // Track recent patterns
-    const currentPattern = digits.join('');
-    const patternRepeat = patternHistory.includes(currentPattern);
-    patternHistory.push(currentPattern);
-    if (patternHistory.length > 20) patternHistory.shift();
-    
-    // Enhanced Scoring System with Weighted Factors
-    let smallScore = 0;
-    let bigScore = 0;
-    
-    // Digit Sum Factors (18% weight)
-    if (digitSumMod3 === 0) smallScore += 2 * algorithmWeights.digitSum;
-    if (digitSumMod5 === 0) bigScore += 2 * algorithmWeights.digitSum;
-    if (digitSumMod7 === 0) smallScore += 1.5 * algorithmWeights.digitSum;
-    if (digitSum < 10) smallScore += 1 * algorithmWeights.digitSum;
-    if (digitSum > 20) bigScore += 1 * algorithmWeights.digitSum;
-    
-    // Digit Pattern Factors (22% weight)
-    if (evenDigits > oddDigits) bigScore += 1.5 * algorithmWeights.digitPattern;
-    if (oddDigits > evenDigits) smallScore += 1.5 * algorithmWeights.digitPattern;
-    if (highDigits >= 3) bigScore += 1 * algorithmWeights.digitPattern;
-    if (lowDigits >= 3) smallScore += 1 * algorithmWeights.digitPattern;
-    
-    // Positional Factors (15% weight)
-    if (firstLastDiff <= 2) smallScore += 1.2 * algorithmWeights.positional;
-    if (firstLastDiff >= 6) bigScore += 1.2 * algorithmWeights.positional;
-    if (middleAvg < 4) smallScore += 1 * algorithmWeights.positional;
-    if (middleAvg > 5) bigScore += 1 * algorithmWeights.positional;
-    if (positionSum < 6) smallScore += 0.8 * algorithmWeights.positional;
-    if (positionSum > 10) bigScore += 0.8 * algorithmWeights.positional;
-    
-    // Sequence Factors (18% weight)
-    if (isAscending) bigScore += 2 * algorithmWeights.sequence;
-    if (isDescending) smallScore += 2 * algorithmWeights.sequence;
-    if (hasPair) smallScore += 1 * algorithmWeights.sequence;
-    if (hasTriple) bigScore += 1.5 * algorithmWeights.sequence;
-    
-    // Statistical Factors (15% weight)
-    if (mean < 4) smallScore += 1.2 * algorithmWeights.statistical;
-    if (mean > 5) bigScore += 1.2 * algorithmWeights.statistical;
-    if (stdDev < 1.5) smallScore += 0.8 * algorithmWeights.statistical;
-    if (stdDev > 3) bigScore += 0.8 * algorithmWeights.statistical;
-    
-    // Historical Factors (12% weight)
-    if (historicalBias === -1) smallScore += 1.5 * algorithmWeights.historical;
-    else bigScore += 1.5 * algorithmWeights.historical;
-    if (patternRepeat) {
-      if (historicalBias === -1) smallScore += 1 * algorithmWeights.historical;
-      else bigScore += 1 * algorithmWeights.historical;
-    }
-    
-    // Calculate confidence with weighted adjustment
-    const totalScore = smallScore + bigScore;
-    const rawConfidence = totalScore > 0 ? (Math.max(smallScore, bigScore) / totalScore) * 100 : 50;
-    
-    // Apply confidence adjustment based on recent accuracy
-    const recentAccuracy = calculateRecentAccuracy();
-    currentConfidence = adjustConfidence(rawConfidence, recentAccuracy);
-    
-    // Determine prediction with detailed explanation
-    let prediction, explanation;
-    if (smallScore > bigScore) {
-      prediction = 'SMALL';
-      explanation = generateExplanation('SMALL', smallScore, bigScore, {
-        digitSum, digitPattern: {evenDigits, oddDigits}, positional: {firstLastDiff, middleAvg},
-        sequence: {isAscending, isDescending}, statistical: {mean, stdDev}
+    try {
+      // Validate input
+      if (!periodNumber || isNaN(periodNumber)) {
+        calculationSteps.push("Invalid period number provided");
+        return { prediction: 'N/A', number: null };
+      }
+
+      // Convert to 6-digit string, pad if necessary
+      const periodStr = periodNumber.toString().slice(-6).padStart(6, '0');
+      calculationSteps.push(`Input period: ${periodNumber} → Normalized to 6 digits: ${periodStr}`);
+      
+      const digits = periodStr.split('').map(Number);
+      calculationSteps.push(`Digits extracted: [${digits.join(', ')}]`);
+
+      // Weighted sum with exponential growth
+      let weightedSum = 0;
+      digits.forEach((digit, index) => {
+        const weight = Math.pow(1.7, index + 1); // slightly higher exponential base
+        weightedSum += digit * weight;
+        calculationSteps.push(`Digit ${index+1} (${digit}) × weight ${weight.toFixed(2)} = ${(digit * weight).toFixed(2)}`);
       });
-    } else if (bigScore > smallScore) {
-      prediction = 'BIG';
-      explanation = generateExplanation('BIG', bigScore, smallScore, {
-        digitSum, digitPattern: {evenDigits, oddDigits}, positional: {firstLastDiff, middleAvg},
-        sequence: {isAscending, isDescending}, statistical: {mean, stdDev}
-      });
-    } else {
-      prediction = historicalBias === -1 ? 'SMALL' : 'BIG';
-      explanation = `Balanced analysis (${smallScore.toFixed(2)}-${bigScore.toFixed(2)}), historical bias applied`;
+      
+      calculationSteps.push(`Weighted sum: ${weightedSum.toFixed(2)}`);
+
+      // Normalize using a prime number modulus for better spread
+      const primeMod = 13;
+      const modResult = Math.round(weightedSum) % primeMod;
+      calculationSteps.push(`Rounded sum ${Math.round(weightedSum)} mod ${primeMod} = ${modResult}`);
+
+      // Secondary transformation to spread outputs across 0–9
+      const transformed = (modResult * 3 + 9) % 11;
+      calculationSteps.push(`Transformed: (${modResult} × 3 + 9) mod 11 = ${transformed}`);
+
+      // Final prediction decision
+      const prediction = transformed <= 4 ? 'SMALL' : 'BIG';
+      calculationSteps.push(`Final prediction: ${transformed} → ${prediction}`);
+
+      // Calculate confidence based on digit patterns
+      const confidence = calculateConfidence(digits, transformed);
+      calculationSteps.push(`Confidence calculation: ${confidence.toFixed(2)}%`);
+
+      return {
+        prediction,
+        number: transformed,
+        confidence
+      };
+
+    } catch (error) {
+      console.error('Prediction calculation error:', error);
+      calculationSteps.push(`Error in calculation: ${error.message}`);
+      return { prediction: 'ERROR', number: null };
     }
-    
-    // Update UI with analysis details
-    document.getElementById('pattern-info').innerHTML = `
-      <div class="flex items-start">
-        <div class="mr-2 mt-0.5">
-          <i class="fas fa-lightbulb text-yellow-500"></i>
-        </div>
-        <div>${explanation}</div>
-      </div>
-    `;
-    
-    // Update algorithm details
-    document.getElementById('algorithm-details').innerHTML = `
-      <div class="flex items-center">
-        <i class="fas fa-info-circle mr-1"></i>
-        <span>Algorithm v3.2 | Confidence: ${currentConfidence.toFixed(0)}% | Recent accuracy: ${recentAccuracy.toFixed(0)}%</span>
-      </div>
-    `;
-    
-    return prediction;
   }
 
-  // Helper function to generate detailed explanation
-  function generateExplanation(prediction, mainScore, oppositeScore, factors) {
-    const reasons = [];
+  // Calculate confidence based on digit patterns
+  function calculateConfidence(digits, transformedNumber) {
+    // Confidence factors:
+    let confidence = 70; // Base confidence
     
-    if (prediction === 'SMALL') {
-      if (factors.digitSum < 10) reasons.push(`low digit sum (${factors.digitSum})`);
-      if (factors.digitPattern.oddDigits > factors.digitPattern.evenDigits) reasons.push(`more odd digits`);
-      if (factors.positional.firstLastDiff <= 2) reasons.push(`small digit difference (${factors.positional.firstLastDiff})`);
-      if (factors.positional.middleAvg < 4) reasons.push(`low middle average (${factors.positional.middleAvg.toFixed(1)})`);
-      if (factors.statistical.mean < 4) reasons.push(`low mean value (${factors.statistical.mean.toFixed(1)})`);
-    } else {
-      if (factors.digitSum > 20) reasons.push(`high digit sum (${factors.digitSum})`);
-      if (factors.digitPattern.evenDigits > factors.digitPattern.oddDigits) reasons.push(`more even digits`);
-      if (factors.positional.firstLastDiff >= 6) reasons.push(`large digit difference (${factors.positional.firstLastDiff})`);
-      if (factors.positional.middleAvg > 5) reasons.push(`high middle average (${factors.positional.middleAvg.toFixed(1)})`);
-      if (factors.statistical.mean > 5) reasons.push(`high mean value (${factors.statistical.mean.toFixed(1)})`);
+    // 1. Check for repeating digits
+    const uniqueDigits = new Set(digits).size;
+    if (uniqueDigits < 4) {
+      confidence += 5; // More repeating digits increases confidence
     }
     
-    return `Strong ${prediction} indicators detected (${mainScore.toFixed(2)} vs ${oppositeScore.toFixed(2)}): ${reasons.join(', ')}`;
+    // 2. Check if transformed number is at extremes
+    if (transformedNumber <= 2 || transformedNumber >= 8) {
+      confidence += 10;
+    } else if (transformedNumber <= 1 || transformedNumber >= 9) {
+      confidence += 15;
+    }
+    
+    // 3. Check digit sum
+    const digitSum = digits.reduce((a, b) => a + b, 0);
+    if (digitSum < 15 || digitSum > 30) {
+      confidence += 5;
+    }
+    
+    // 4. Recent accuracy adjustment
+    const recentAccuracy = calculateRecentAccuracy();
+    confidence = confidence * (recentAccuracy / 75); // Normalize to 75% baseline
+    
+    // Ensure confidence is within bounds
+    return Math.min(95, Math.max(55, confidence));
   }
 
   // Calculate recent accuracy (last 20 predictions)
@@ -398,18 +375,10 @@
     return recentTotal > 0 ? (recentWins / recentTotal) * 100 : 75; // Default to 75% if no recent data
   }
 
-  // Adjust confidence based on recent accuracy
-  function adjustConfidence(rawConfidence, recentAccuracy) {
-    // Boost confidence if recent accuracy is high, reduce if low
-    const accuracyFactor = recentAccuracy / 75; // Normalize to 75% baseline
-    const adjustedConfidence = Math.min(95, rawConfidence * accuracyFactor);
-    return Math.max(50, adjustedConfidence); // Keep between 50-95%
-  }
-
   // Update circular progress indicator
   function updateConfidenceRing(confidence) {
     const circle = document.getElementById('confidence-ring');
-    const radius = 45;
+    const radius = 35;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (confidence / 100) * circumference;
     circle.style.strokeDashoffset = offset;
@@ -422,6 +391,28 @@
     } else {
       circle.style.stroke = '#f59e0b'; // Yellow
     }
+  }
+
+  // Display calculation steps
+  function showCalculationSteps() {
+    const container = document.getElementById('steps-container');
+    container.innerHTML = '';
+    
+    calculationSteps.forEach(step => {
+      const stepElement = document.createElement('div');
+      stepElement.className = 'calculation-step text-xs mb-1';
+      stepElement.textContent = step;
+      container.appendChild(stepElement);
+    });
+    
+    document.getElementById('calculation-steps').classList.remove('hidden');
+    document.getElementById('show-calculation-btn').innerHTML = '<i class="fas fa-eye-slash mr-2"></i> Hide Calculation';
+  }
+
+  // Hide calculation steps
+  function hideCalculationSteps() {
+    document.getElementById('calculation-steps').classList.add('hidden');
+    document.getElementById('show-calculation-btn').innerHTML = '<i class="fas fa-eye mr-2"></i> Show Calculation';
   }
 
   // Fetch Current Game Issue
@@ -490,16 +481,18 @@
   // Update Results with Enhanced AI Prediction
   async function updateResults() {
     if (latestPeriod) {
-      latestResult = predictBasedOnPeriod(latestPeriod);
+      const predictionResult = calculatePrediction(latestPeriod);
+      latestResult = predictionResult.prediction;
+      currentConfidence = predictionResult.confidence || 70;
       
       // Update prediction display with color coding
       const resultElement = document.getElementById('predicted-result');
       resultElement.textContent = latestResult;
       
       if (latestResult === 'SMALL') {
-        resultElement.className = 'text-xl font-bold result-glow text-blue-600';
+        resultElement.className = 'text-2xl font-bold result-glow text-blue-600 mt-1';
       } else {
-        resultElement.className = 'text-xl font-bold result-glow text-purple-600';
+        resultElement.className = 'text-2xl font-bold result-glow text-purple-600 mt-1';
       }
       
       // Update confidence display
@@ -511,6 +504,24 @@
       
       document.getElementById('confidence-fill').style.width = currentConfidence + '%';
       updateConfidenceRing(currentConfidence);
+      
+      // Update analysis info
+      document.getElementById('pattern-info').innerHTML = `
+        <div class="flex items-start">
+          <div class="mr-2 mt-0.5">
+            <i class="fas fa-lightbulb text-yellow-500"></i>
+          </div>
+          <div>Algorithm determined ${latestResult} with ${currentConfidence.toFixed(0)}% confidence based on weighted exponential analysis of period digits.</div>
+        </div>
+      `;
+      
+      // Update algorithm details
+      document.getElementById('algorithm-details').innerHTML = `
+        <div class="flex items-center">
+          <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+          <span>Algorithm v4.1 | Confidence: ${currentConfidence.toFixed(0)}% | Recent accuracy: ${calculateRecentAccuracy().toFixed(0)}%</span>
+        </div>
+      `;
       
       updateHistory();
     }
@@ -527,7 +538,8 @@
       status: "PENDING",
       actualResult: null,
       confidence: currentConfidence,
-      timestamp: new Date().getTime()
+      timestamp: new Date().getTime(),
+      number: calculatePrediction(latestPeriod).number
     };
 
     if (!storedHistory.some(entry => entry.period === newHistoryEntry.period)) {
@@ -572,9 +584,6 @@
           streakType = 'loss';
         }
       }
-      
-      // Update algorithm weights based on result
-      updateAlgorithmWeights(prevPeriod.status === 'WON');
     }
 
     // Update accuracy display
@@ -586,9 +595,9 @@
     const streakElement = document.getElementById('current-streak');
     streakElement.textContent = currentStreak;
     if (streakType === 'win') {
-      streakElement.className = 'text-2xl font-bold text-green-600';
+      streakElement.className = 'text-2xl font-bold text-green-500 mt-1';
     } else {
-      streakElement.className = 'text-2xl font-bold text-red-600';
+      streakElement.className = 'text-2xl font-bold text-red-500 mt-1';
     }
 
     let winCount = 0, lossCount = 0;
@@ -626,7 +635,7 @@
             <span>${entry.confidence.toFixed(0)}%</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-1.5">
-            <div class="bg-blue-600 h-1.5 rounded-full" style="width: ${entry.confidence}%"></div>
+            <div class="bg-blue-500 h-1.5 rounded-full" style="width: ${entry.confidence}%"></div>
           </div>
         </div>
       ` : '';
@@ -636,7 +645,7 @@
         <div class="mt-1 text-xs">
           <span class="font-medium">Actual:</span> 
           <span class="${entry.actualResult === 'SMALL' ? 'text-blue-600 font-bold' : 'text-purple-600 font-bold'}">
-            ${entry.actualResult}
+            ${entry.actualResult} (${previousResults[0]?.number || '?'})
           </span>
           ${entry.status === 'WON' ? 
             '<span class="ml-2 text-green-600"><i class="fas fa-check-circle"></i> Correct</span>' : 
@@ -650,7 +659,7 @@
             <div class="flex items-center">
               <span class="font-bold text-gray-700 mr-2">${entry.period}</span>
               <span class="text-xs px-2 py-0.5 rounded-full ${predictionBadge}">
-                ${entry.prediction}
+                ${entry.prediction} (${entry.number || '?'})
               </span>
             </div>
             ${resultDisplay}
@@ -735,39 +744,12 @@
     }
   }
 
-  // Update algorithm weights based on prediction success
-  function updateAlgorithmWeights(isCorrect) {
-    // Simple reinforcement learning - adjust weights based on success
-    const adjustment = isCorrect ? 0.02 : -0.02;
-    
-    // Adjust weights slightly based on outcome
-    for (const key in algorithmWeights) {
-      if (isCorrect) {
-        algorithmWeights[key] += adjustment * (1 - algorithmWeights[key]);
-      } else {
-        algorithmWeights[key] += adjustment * algorithmWeights[key];
-      }
-    }
-    
-    // Normalize weights to sum to 1
-    const weightSum = Object.values(algorithmWeights).reduce((a, b) => a + b, 0);
-    for (const key in algorithmWeights) {
-      algorithmWeights[key] = algorithmWeights[key] / weightSum;
-    }
-  }
-
   // Initialize and start the process
   (function init() {
     // Load accuracy data from localStorage if available
     const savedAccuracy = JSON.parse(localStorage.getItem("accuracyData")) || {total: 0, correct: 0};
     totalPredictions = savedAccuracy.total;
     correctPredictions = savedAccuracy.correct;
-    
-    // Load algorithm weights if available
-    const savedWeights = JSON.parse(localStorage.getItem("algorithmWeights"));
-    if (savedWeights) {
-      algorithmWeights = savedWeights;
-    }
     
     // Auto-Fetch Every 5 Seconds
     setInterval(fetchCurrentGameIssue, 5000);
@@ -784,13 +766,21 @@
       }, 1000);
     });
     
+    // Toggle calculation steps
+    document.getElementById('show-calculation-btn').addEventListener('click', () => {
+      if (document.getElementById('calculation-steps').classList.contains('hidden')) {
+        showCalculationSteps();
+      } else {
+        hideCalculationSteps();
+      }
+    });
+    
     // Save data before unload
     window.addEventListener('beforeunload', () => {
       localStorage.setItem("accuracyData", JSON.stringify({
         total: totalPredictions,
         correct: correctPredictions
       }));
-      localStorage.setItem("algorithmWeights", JSON.stringify(algorithmWeights));
       localStorage.setItem("gameHistory", JSON.stringify(storedHistory));
     });
   })();
